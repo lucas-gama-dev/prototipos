@@ -1,0 +1,220 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Mapeamento Cartesiano (X/Y)" [level=1] [ref=e5]
+      - paragraph [ref=e6]:
+        - text: "Sistema de coordenadas relativo à imagem:"
+        - strong [ref=e7]: (0,0)
+        - text: no canto superior esquerdo e
+        - strong [ref=e8]: (100,100)
+        - text: no canto inferior direito.
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: Imagem
+        - combobox "Imagem" [ref=e12]:
+          - option "Mercedes Sprinter USB/USA/USI - Frente/Lateral" [selected]
+          - option "Mercedes Sprinter USB/USA/USI - Frente"
+          - option "Renault Master USB/USA/USI - Frente/Lateral"
+          - option "Toyota SW4 VIR/VIM - Frente"
+          - option "Yamaha Versys Motolancia - Frente"
+      - button "Ocultar grid" [ref=e13] [cursor=pointer]
+      - button "Restaurar pontos" [ref=e14] [cursor=pointer]
+      - button "Limpar seleção" [ref=e15] [cursor=pointer]
+  - generic [ref=e16]:
+    - region "Area de mapeamento cartesiano" [ref=e17]:
+      - generic [ref=e18]:
+        - strong [ref=e20]: Mercedes Sprinter USB/USA/USI - Frente/Lateral
+        - status [ref=e21]: X 0.00 / Y 0.00
+      - generic "Mapa cartesiano da viatura" [ref=e23]:
+        - generic: (0,0)
+        - generic: X → (100,0)
+        - generic: Y ↓ (0,100)
+        - generic: (100,100)
+        - generic: "25"
+        - generic: "50"
+        - generic: "75"
+        - generic: "25"
+        - generic: "50"
+        - generic: "75"
+        - img "Viatura SAMU - Mercedes Sprinter USB/USA/USI - Frente/Lateral" [ref=e24]
+        - generic:
+          - 'button "Ponto 1: Sinalizador Frontal - X 50 / Y 6" [ref=e25] [cursor=pointer]': "1"
+          - 'button "Ponto 2: Texto SAMU 192 - X 48 / Y 13" [ref=e26] [cursor=pointer]': "2"
+          - 'button "Ponto 3: Parabrisa - X 23 / Y 28" [ref=e27] [cursor=pointer]': "3"
+          - 'button "Ponto 4: Retrovisor Lado Dir. - X 66 / Y 42" [ref=e28] [cursor=pointer]': "4"
+          - 'button "Ponto 5: Símbolo no Capô - X 32 / Y 47" [ref=e29] [cursor=pointer]': "5"
+          - 'button "Ponto 6: Farol Dianteiro Dir. - X 18 / Y 59" [ref=e30] [cursor=pointer]': "6"
+          - 'button "Ponto 7: Grade Frontal - X 33 / Y 64" [ref=e31] [cursor=pointer]': "7"
+          - 'button "Ponto 8: Parachoque Dianteiro - X 21 / Y 74" [ref=e32] [cursor=pointer]': "8"
+          - 'button "Ponto 9: Placa SAMU192 - X 24 / Y 83" [ref=e33] [cursor=pointer]': "9"
+          - 'button "Ponto 10: Roda Dianteira Dir. - X 61 / Y 82" [ref=e34] [cursor=pointer]': "10"
+          - 'button "Ponto 11: Sinalizador Lateral - X 82 / Y 12" [ref=e35] [cursor=pointer]': "11"
+          - 'button "Ponto 12: Símbolo Lateral - X 82 / Y 32" [ref=e36] [cursor=pointer]': "12"
+          - 'button "Ponto 13: Faixa Lateral - X 83 / Y 62" [ref=e37] [cursor=pointer]': "13"
+          - 'button "Ponto 13: Faixa Lateral - X 72 / Y 69" [ref=e38] [cursor=pointer]': "13"
+          - 'button "Ponto 14: Saia Lateral - X 86 / Y 75" [ref=e39] [cursor=pointer]': "14"
+    - complementary [ref=e40]:
+      - generic [ref=e41]:
+        - heading "Pontos de checklist" [level=2] [ref=e42]
+        - generic [ref=e43]: "14"
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - text: Descrição
+          - textbox "Descrição" [ref=e46]:
+            - /placeholder: "Ex.: Placa SAMU192"
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - text: X (%)
+            - spinbutton "X (%)" [ref=e49]
+          - generic [ref=e50]:
+            - text: Y (%)
+            - spinbutton "Y (%)" [ref=e51]
+        - generic [ref=e52]:
+          - text: Status
+          - combobox "Status" [ref=e53]:
+            - option "Pendente" [selected]
+            - option "OK"
+            - option "Ajustar"
+        - button "Adicionar ponto" [ref=e54] [cursor=pointer]
+      - generic [ref=e55]:
+        - generic [ref=e56]: OK
+        - generic [ref=e58]: Pendente
+        - generic [ref=e60]: Ajustar
+      - table [ref=e63]:
+        - rowgroup [ref=e64]:
+          - row "ID Descrição X (%) Y (%)" [ref=e65]:
+            - columnheader "ID" [ref=e66]
+            - columnheader "Descrição" [ref=e67]
+            - columnheader "X (%)" [ref=e68]
+            - columnheader "Y (%)" [ref=e69]
+            - columnheader [ref=e70]
+        - rowgroup [ref=e71]:
+          - row "1 Sinalizador Frontal 50 6 Remover ponto 1" [ref=e72] [cursor=pointer]:
+            - cell "1" [ref=e73]:
+              - strong [ref=e74]: "1"
+            - cell "Sinalizador Frontal" [ref=e75]
+            - cell "50" [ref=e76]
+            - cell "6" [ref=e77]
+            - cell "Remover ponto 1" [ref=e78]:
+              - button "Remover ponto 1" [ref=e79]: x
+          - row "2 Texto SAMU 192 48 13 Remover ponto 2" [ref=e80] [cursor=pointer]:
+            - cell "2" [ref=e81]:
+              - strong [ref=e82]: "2"
+            - cell "Texto SAMU 192" [ref=e83]
+            - cell "48" [ref=e84]
+            - cell "13" [ref=e85]
+            - cell "Remover ponto 2" [ref=e86]:
+              - button "Remover ponto 2" [ref=e87]: x
+          - row "3 Parabrisa 23 28 Remover ponto 3" [ref=e88] [cursor=pointer]:
+            - cell "3" [ref=e89]:
+              - strong [ref=e90]: "3"
+            - cell "Parabrisa" [ref=e91]
+            - cell "23" [ref=e92]
+            - cell "28" [ref=e93]
+            - cell "Remover ponto 3" [ref=e94]:
+              - button "Remover ponto 3" [ref=e95]: x
+          - row "4 Retrovisor Lado Dir. 66 42 Remover ponto 4" [ref=e96] [cursor=pointer]:
+            - cell "4" [ref=e97]:
+              - strong [ref=e98]: "4"
+            - cell "Retrovisor Lado Dir." [ref=e99]
+            - cell "66" [ref=e100]
+            - cell "42" [ref=e101]
+            - cell "Remover ponto 4" [ref=e102]:
+              - button "Remover ponto 4" [ref=e103]: x
+          - row "5 Símbolo no Capô 32 47 Remover ponto 5" [ref=e104] [cursor=pointer]:
+            - cell "5" [ref=e105]:
+              - strong [ref=e106]: "5"
+            - cell "Símbolo no Capô" [ref=e107]
+            - cell "32" [ref=e108]
+            - cell "47" [ref=e109]
+            - cell "Remover ponto 5" [ref=e110]:
+              - button "Remover ponto 5" [ref=e111]: x
+          - row "6 Farol Dianteiro Dir. 18 59 Remover ponto 6" [ref=e112] [cursor=pointer]:
+            - cell "6" [ref=e113]:
+              - strong [ref=e114]: "6"
+            - cell "Farol Dianteiro Dir." [ref=e115]
+            - cell "18" [ref=e116]
+            - cell "59" [ref=e117]
+            - cell "Remover ponto 6" [ref=e118]:
+              - button "Remover ponto 6" [ref=e119]: x
+          - row "7 Grade Frontal 33 64 Remover ponto 7" [ref=e120] [cursor=pointer]:
+            - cell "7" [ref=e121]:
+              - strong [ref=e122]: "7"
+            - cell "Grade Frontal" [ref=e123]
+            - cell "33" [ref=e124]
+            - cell "64" [ref=e125]
+            - cell "Remover ponto 7" [ref=e126]:
+              - button "Remover ponto 7" [ref=e127]: x
+          - row "8 Parachoque Dianteiro 21 74 Remover ponto 8" [ref=e128] [cursor=pointer]:
+            - cell "8" [ref=e129]:
+              - strong [ref=e130]: "8"
+            - cell "Parachoque Dianteiro" [ref=e131]
+            - cell "21" [ref=e132]
+            - cell "74" [ref=e133]
+            - cell "Remover ponto 8" [ref=e134]:
+              - button "Remover ponto 8" [ref=e135]: x
+          - row "9 Placa SAMU192 24 83 Remover ponto 9" [ref=e136] [cursor=pointer]:
+            - cell "9" [ref=e137]:
+              - strong [ref=e138]: "9"
+            - cell "Placa SAMU192" [ref=e139]
+            - cell "24" [ref=e140]
+            - cell "83" [ref=e141]
+            - cell "Remover ponto 9" [ref=e142]:
+              - button "Remover ponto 9" [ref=e143]: x
+          - row "10 Roda Dianteira Dir. 61 82 Remover ponto 10" [ref=e144] [cursor=pointer]:
+            - cell "10" [ref=e145]:
+              - strong [ref=e146]: "10"
+            - cell "Roda Dianteira Dir." [ref=e147]
+            - cell "61" [ref=e148]
+            - cell "82" [ref=e149]
+            - cell "Remover ponto 10" [ref=e150]:
+              - button "Remover ponto 10" [ref=e151]: x
+          - row "11 Sinalizador Lateral 82 12 Remover ponto 11" [ref=e152] [cursor=pointer]:
+            - cell "11" [ref=e153]:
+              - strong [ref=e154]: "11"
+            - cell "Sinalizador Lateral" [ref=e155]
+            - cell "82" [ref=e156]
+            - cell "12" [ref=e157]
+            - cell "Remover ponto 11" [ref=e158]:
+              - button "Remover ponto 11" [ref=e159]: x
+          - row "12 Símbolo Lateral 82 32 Remover ponto 12" [ref=e160] [cursor=pointer]:
+            - cell "12" [ref=e161]:
+              - strong [ref=e162]: "12"
+            - cell "Símbolo Lateral" [ref=e163]
+            - cell "82" [ref=e164]
+            - cell "32" [ref=e165]
+            - cell "Remover ponto 12" [ref=e166]:
+              - button "Remover ponto 12" [ref=e167]: x
+          - row "13 Faixa Lateral 83 62 Remover ponto 13" [ref=e168] [cursor=pointer]:
+            - cell "13" [ref=e169]:
+              - strong [ref=e170]: "13"
+            - cell "Faixa Lateral" [ref=e171]
+            - cell "83" [ref=e172]
+            - cell "62" [ref=e173]
+            - cell "Remover ponto 13" [ref=e174]:
+              - button "Remover ponto 13" [ref=e175]: x
+          - row "14 Saia Lateral 86 75 Remover ponto 14" [ref=e176] [cursor=pointer]:
+            - cell "14" [ref=e177]:
+              - strong [ref=e178]: "14"
+            - cell "Saia Lateral" [ref=e179]
+            - cell "86" [ref=e180]
+            - cell "75" [ref=e181]
+            - cell "Remover ponto 14" [ref=e182]:
+              - button "Remover ponto 14" [ref=e183]: x
+      - region "Como funciona" [ref=e184]:
+        - heading "Como funciona" [level=3] [ref=e185]
+        - list [ref=e186]:
+          - listitem [ref=e187]:
+            - strong [ref=e188]: (0,0)
+            - text: = canto superior esquerdo
+          - listitem [ref=e189]:
+            - strong [ref=e190]: (100,0)
+            - text: = canto superior direito
+          - listitem [ref=e191]:
+            - strong [ref=e192]: (0,100)
+            - text: = canto inferior esquerdo
+          - listitem [ref=e193]:
+            - strong [ref=e194]: (100,100)
+            - text: = canto inferior direito
+      - group [ref=e195]:
+        - generic "JSON dos pontos" [ref=e196] [cursor=pointer]

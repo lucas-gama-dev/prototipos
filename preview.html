@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prototipo - Mapeamento Cartesiano de Checklist</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="title-block">
+        <h1>Mapeamento Cartesiano (X/Y)</h1>
+        <p>Sistema de coordenadas relativo &agrave; imagem: <strong>(0,0)</strong> no canto superior esquerdo e <strong>(100,100)</strong> no canto inferior direito.</p>
+      </div>
+      <div class="actions">
+        <label class="vehicle-field" for="typeSelect">
+          <span>Ve&iacute;culo</span>
+          <select id="typeSelect"></select>
+        </label>
+        <button id="resetPoints" type="button">Restaurar pontos</button>
+        <button id="clearSelection" type="button">Limpar sele&ccedil;&atilde;o</button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <section class="canvas-card" aria-label="Area de mapeamento cartesiano">
+        <div class="canvas-heading">
+          <div>
+            <strong id="imageTitle">Viatura SAMU</strong>
+            <span id="imageMeta">Coordenadas em percentual</span>
+          </div>
+          <div class="view-controls">
+            <div id="imageTabs" class="image-tabs"></div>
+            <div class="view-mode">
+              <button id="modeSingle" class="mode-btn is-active" type="button" title="Uma imagem por vez">
+                <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><rect x="1" y="1" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+              </button>
+              <button id="modeDual" class="mode-btn" type="button" title="Lado a lado">
+                <svg width="24" height="14" viewBox="0 0 24 14" fill="none"><rect x="1" y="1" width="10" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="1" width="10" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+              </button>
+            </div>
+          </div>
+          <output id="liveCoords" class="live-coords">X 0.00 / Y 0.00</output>
+        </div>
+
+        <div id="mapsContainer" class="maps-container mode-single"></div>
+      </section>
+
+      <aside class="panel">
+        <div class="panel-header">
+          <h2>Pontos de checklist</h2>
+          <span id="count" class="badge"></span>
+        </div>
+
+        <form id="pointForm" class="form">
+          <label>Descri&ccedil;&atilde;o<input id="descricao" type="text" placeholder="Ex.: Placa SAMU192" /></label>
+          <div class="form-row">
+            <label>X (%)<input id="x" type="number" min="0" max="100" step="0.01" /></label>
+            <label>Y (%)<input id="y" type="number" min="0" max="100" step="0.01" /></label>
+          </div>
+          <label>Status
+            <select id="status">
+              <option value="pendente">Pendente</option>
+              <option value="ok">OK</option>
+              <option value="erro">Ajustar</option>
+            </select>
+          </label>
+          <button id="submitPoint" type="submit">Adicionar ponto</button>
+        </form>
+
+        <div class="legend">
+          <span><i class="dot ok"></i> OK</span>
+          <span><i class="dot pendente"></i> Pendente</span>
+          <span><i class="dot erro"></i> Ajustar</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Descri&ccedil;&atilde;o</th>
+                <th>X (%)</th>
+                <th>Y (%)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <section class="help-box" aria-label="Como funciona">
+          <h3>Como funciona</h3>
+          <ul>
+            <li><strong>(0,0)</strong> = canto superior esquerdo</li>
+            <li><strong>(100,0)</strong> = canto superior direito</li>
+            <li><strong>(0,100)</strong> = canto inferior esquerdo</li>
+            <li><strong>(100,100)</strong> = canto inferior direito</li>
+          </ul>
+        </section>
+
+        <details class="json-box">
+          <summary>JSON dos pontos</summary>
+          <pre id="jsonOutput"></pre>
+        </details>
+      </aside>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
