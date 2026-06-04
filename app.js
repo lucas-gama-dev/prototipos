@@ -11,7 +11,7 @@ const vehicleTypes = [
     images: [
       {
         id: "mercedes-sprinter-v2-frente",
-        label: "Frente/Lateral",
+        label: "Frente",
         src: "./MERCEDES-SPRINTER-USB-USA-USI/V2-MERCEDES-SPRINTER-FRENTE.jpg",
       },
       {
@@ -27,7 +27,7 @@ const vehicleTypes = [
     images: [
       {
         id: "renault-master-v1-frente",
-        label: "Frente/Lateral",
+        label: "Frente",
         src: "./RENAULT-MASTER-USB-USA-USI/V1-RENAULT-MASTER-FRENTE.png",
       },
       {
