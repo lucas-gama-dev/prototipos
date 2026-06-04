@@ -276,15 +276,22 @@ button:active {
   border: 2px solid transparent;
   border-radius: 8px;
   padding: 4px;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .maps-container.mode-dual .map-frame {
   cursor: pointer;
+  background: var(--surface-strong);
+  border-color: var(--line);
+  border-radius: 10px;
+  padding: 12px 10px 10px;
+  box-shadow: 0 2px 8px rgba(24, 31, 42, 0.06);
 }
 
 .maps-container.mode-dual .map-frame.is-active {
   border-color: var(--blue);
+  background: var(--surface);
+  box-shadow: 0 4px 14px rgba(34, 103, 168, 0.12);
 }
 
 .map-frame-label {
@@ -787,6 +794,10 @@ th:nth-child(4) {
     display: flex;
     flex-direction: column;
     height: 100%;
+  }
+
+  .maps-container.mode-dual .map-frame {
+    padding: 10px 8px 8px;
   }
 
   .map-wrap {
