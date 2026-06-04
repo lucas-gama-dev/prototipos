@@ -9,9 +9,6 @@
   --red: #e21b1b;
   --red-dark: #be1111;
   --blue: #2267a8;
-  --ok: #1b8f5a;
-  --pending: #e53935;
-  --warning: #c97900;
   --shadow: 0 16px 38px rgba(24, 31, 42, 0.11);
 }
 
@@ -96,12 +93,17 @@ button:active {
 }
 
 .vehicle-field {
-  display: grid;
-  gap: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: var(--muted);
   font-size: 0.77rem;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.vehicle-field span {
+  white-space: nowrap;
 }
 
 .vehicle-field select {
@@ -135,9 +137,9 @@ button:active {
 }
 
 .canvas-heading {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: 14px;
   margin-bottom: 26px;
 }
@@ -156,6 +158,8 @@ button:active {
 }
 
 .live-coords {
+  grid-column: 3;
+  justify-self: end;
   flex: 0 0 auto;
   border: 1px solid var(--line);
   border-radius: 7px;
@@ -168,8 +172,10 @@ button:active {
 }
 
 .view-controls {
+  grid-column: 2;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 
@@ -360,33 +366,44 @@ button:active {
   position: absolute;
   left: calc(var(--x) * 1%);
   top: calc(var(--y) * 1%);
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 2px solid #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 3px solid #fff;
   border-radius: 50%;
-  background: var(--pending);
-  box-shadow: 0 2px 8px rgba(45, 45, 45, 0.34);
+  background: linear-gradient(180deg, #f43a3a 0%, var(--red) 100%);
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.24), 0 0 0 1px rgba(15, 23, 42, 0.1);
   color: #fff;
-  font-size: 1rem;
-  font-weight: 800;
-  line-height: 1;
+  font-size: 0.94rem;
+  font-weight: 900;
+  line-height: 32px;
+  text-align: center;
   transform: translate(-50%, -50%);
+  transition: opacity 0.16s ease, box-shadow 0.16s ease;
   pointer-events: auto;
+  font-variant-numeric: tabular-nums;
+  z-index: 1;
+}
+
+.marker:hover,
+.marker:focus-visible {
+  border-color: #fff;
+  background: linear-gradient(180deg, #f43a3a 0%, var(--red) 100%);
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.24), 0 0 0 1px rgba(15, 23, 42, 0.1);
+  color: #fff;
+  z-index: 10;
 }
 
 .marker.is-selected {
-  outline: 3px solid rgba(34, 103, 168, 0.42);
-  outline-offset: 3px;
-}
-
-.marker.status-ok {
-  background: var(--ok);
-}
-
-.marker.status-erro {
-  background: var(--warning);
+  outline: 3px solid rgba(34, 103, 168, 0.36);
+  outline-offset: 2px;
+  z-index: 4;
 }
 
 .marker.is-extra {
@@ -397,16 +414,19 @@ button:active {
   content: none;
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 12px);
+  z-index: 20;
   max-width: 230px;
   width: max-content;
-  padding: 7px 9px;
+  padding: 7px 10px;
   border-radius: 7px;
-  background: rgba(15, 23, 42, 0.92);
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 700;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+  color: #111827;
+  font-size: 0.88rem;
+  font-weight: 800;
   line-height: 1.2;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
   opacity: 0;
   transform: translate(-50%, 4px);
   transition: opacity 0.15s ease, transform 0.15s ease;
@@ -535,87 +555,6 @@ button:active {
   text-align: center;
 }
 
-.form {
-  display: grid;
-  gap: 10px;
-  padding: 0 16px 14px;
-}
-
-.form label {
-  display: grid;
-  gap: 5px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.form input,
-.form select {
-  width: 100%;
-  min-height: 38px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  background: var(--surface);
-  color: var(--text);
-  padding: 0 10px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.form button[type="submit"] {
-  border-color: var(--red);
-  background: var(--red);
-  color: #fff;
-  font-weight: 800;
-}
-
-.form button[type="submit"]:hover {
-  border-color: var(--red-dark);
-  background: var(--red-dark);
-}
-
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  border-top: 1px solid var(--line-soft);
-  border-bottom: 1px solid var(--line-soft);
-  padding: 10px 16px;
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.dot.ok {
-  background: var(--ok);
-}
-
-.dot.pendente {
-  background: var(--pending);
-}
-
-.dot.erro {
-  background: var(--warning);
-}
-
 .table-wrap {
   max-height: 440px;
   overflow: auto;
@@ -654,6 +593,15 @@ tbody tr.is-selected {
   background: #fff7f7;
 }
 
+tbody tr.is-positioned {
+  background: #eaf8ef;
+}
+
+tbody tr.is-positioned:hover,
+tbody tr.is-positioned.is-selected {
+  background: #d8f0e1;
+}
+
 td:nth-child(1),
 td:nth-child(3),
 td:nth-child(4),
@@ -671,6 +619,23 @@ th:nth-child(4) {
   padding: 0;
   color: var(--red);
   font-weight: 900;
+}
+
+.table-action.is-add {
+  border-color: #b8c7d9;
+  background: #eef4fb;
+  color: var(--blue);
+  font-size: 1.08rem;
+}
+
+.table-action.is-add:hover {
+  border-color: var(--blue);
+  background: #e3effa;
+}
+
+.coord-empty {
+  color: #a1a8b3;
+  font-weight: 700;
 }
 
 .help-box {
@@ -848,13 +813,16 @@ th:nth-child(4) {
 
   .marker {
     width: 29px;
+    min-width: 29px;
     height: 29px;
+    min-height: 29px;
     font-size: 0.88rem;
+    line-height: 29px;
   }
 
   .panel {
     display: grid;
-    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
   }
 
   .panel-header {
@@ -867,30 +835,6 @@ th:nth-child(4) {
 
   .badge {
     padding: 4px 8px;
-  }
-
-  .form {
-    gap: 7px;
-    padding: 0 12px 10px;
-  }
-
-  .form label {
-    gap: 4px;
-    font-size: 0.72rem;
-  }
-
-  .form input,
-  .form select {
-    min-height: 33px;
-  }
-
-  .form button[type="submit"] {
-    min-height: 34px;
-  }
-
-  .legend {
-    padding: 8px 12px;
-    font-size: 0.78rem;
   }
 
   .table-wrap {
@@ -975,6 +919,7 @@ th:nth-child(4) {
   }
 
   .canvas-heading {
+    display: flex;
     align-items: stretch;
     flex-direction: column;
     margin-bottom: 22px;
@@ -1027,11 +972,10 @@ th:nth-child(4) {
 
   .marker {
     width: 28px;
+    min-width: 28px;
     height: 28px;
+    min-height: 28px;
     font-size: 0.83rem;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
+    line-height: 28px;
   }
 }

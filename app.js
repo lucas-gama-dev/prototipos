@@ -40,37 +40,48 @@ const vehicleTypes = [
 ];
 
 const defaultChecklist = [
-  { id: 1, descricao: "Sinalizador Frontal", x: 50, y: 6, status: "pendente" },
-  { id: 2, descricao: "Texto SAMU 192", x: 48, y: 13, status: "pendente" },
-  { id: 3, descricao: "Parabrisa", x: 23, y: 28, status: "pendente" },
-  { id: 4, descricao: "Retrovisor Lado Dir.", x: 66, y: 42, status: "pendente" },
-  { id: 5, descricao: "S\u00edmbolo no Cap\u00f4", x: 32, y: 47, status: "pendente" },
-  { id: 6, descricao: "Farol Dianteiro Dir.", x: 18, y: 59, status: "pendente" },
-  { id: 7, descricao: "Grade Frontal", x: 33, y: 64, status: "pendente" },
-  { id: 8, descricao: "Parachoque Dianteiro", x: 21, y: 74, status: "pendente" },
-  { id: 9, descricao: "Placa SAMU192", x: 24, y: 83, status: "pendente" },
-  { id: 10, descricao: "Roda Dianteira Dir.", x: 61, y: 82, status: "pendente" },
-  { id: 11, descricao: "Sinalizador Lateral", x: 82, y: 12, status: "pendente" },
-  { id: 12, descricao: "S\u00edmbolo Lateral", x: 82, y: 32, status: "pendente" },
-  {
-    id: 13,
-    descricao: "Faixa Lateral",
-    x: 83,
-    y: 62,
-    status: "pendente",
-    extras: [{ x: 72, y: 69 }],
-  },
-  { id: 14, descricao: "Saia Lateral", x: 86, y: 75, status: "pendente" },
+  { id: 1, descricao: "Asa Dianteira" },
+  { id: 2, descricao: "Parabrisa" },
+  { id: 3, descricao: "Cap\u00f4" },
+  { id: 4, descricao: "Farol Dianteiro Direito" },
+  { id: 5, descricao: "Grade Frontal" },
+  { id: 6, descricao: "Farol Dianteiro Esquerdo" },
+  { id: 7, descricao: "Parachoque" },
+  { id: 8, descricao: "Lataria Dianteira" },
+  { id: 9, descricao: "Exaustor" },
+  { id: 10, descricao: "Vigia Lateral Dianteira Esquerda" },
+  { id: 11, descricao: "Vigia Lateral Meio Esquerda" },
+  { id: 12, descricao: "Vigia Lateral Traseira Esquerda" },
+  { id: 13, descricao: "Retrovisor Esquerdo" },
+  { id: 14, descricao: "Porta Dianteira Esquerda" },
+  { id: 15, descricao: "Lataria Lateral Esquerda" },
+  { id: 16, descricao: "Caixa de Ar Esquerda" },
+  { id: 17, descricao: "Luz Patrulheiro" },
+  { id: 18, descricao: "Luz Embarque" },
+  { id: 19, descricao: "Camera" },
+  { id: 20, descricao: "Porta Traseira Esquerda" },
+  { id: 21, descricao: "Porta Traseira Direita" },
+  { id: 22, descricao: "Farol Traseiro Esquerdo" },
+  { id: 23, descricao: "Ma\u00e7aneta" },
+  { id: 24, descricao: "Estribo Traseiro" },
+  { id: 25, descricao: "Farol Traseiro Direito" },
+  { id: 26, descricao: "Vigia Traseira Direita" },
+  { id: 27, descricao: "Vigia Meio Direita" },
+  { id: 28, descricao: "Vigia Dianteira Direita" },
+  { id: 29, descricao: "Lataria/Trilho" },
+  { id: 30, descricao: "Caixa de Ar Direita" },
+  { id: 31, descricao: "Porta Lateral" },
+  { id: 32, descricao: "Estribo Lateral" },
+  { id: 33, descricao: "Retrovisor Direito" },
+  { id: 34, descricao: "Porta Dianteira Direita" },
 ];
 
-const storageKey = "samu-cartesian-checklist-v3";
+const storageKey = "samu-cartesian-checklist-v5";
 
 /* ── DOM ── */
 
 const dom = {
   typeSelect: document.querySelector("#typeSelect"),
-  imageTitle: document.querySelector("#imageTitle"),
-  imageMeta: document.querySelector("#imageMeta"),
   mapsContainer: document.querySelector("#mapsContainer"),
   imageTabs: document.querySelector("#imageTabs"),
   modeSingle: document.querySelector("#modeSingle"),
@@ -79,12 +90,6 @@ const dom = {
   resetPoints: document.querySelector("#resetPoints"),
   clearSelection: document.querySelector("#clearSelection"),
   count: document.querySelector("#count"),
-  form: document.querySelector("#pointForm"),
-  descricao: document.querySelector("#descricao"),
-  x: document.querySelector("#x"),
-  y: document.querySelector("#y"),
-  status: document.querySelector("#status"),
-  submitPoint: document.querySelector("#submitPoint"),
   tableBody: document.querySelector("#tableBody"),
   jsonOutput: document.querySelector("#jsonOutput"),
 };
@@ -133,7 +138,6 @@ function activeImageId() {
 function cloneDefaultPoints() {
   return defaultChecklist.map((p) => ({
     ...p,
-    imageIndex: 0,
     extras: p.extras ? p.extras.map((e) => ({ ...e })) : undefined,
   }));
 }
@@ -146,12 +150,16 @@ function allTypePoints() {
   return state.pointsByType[typeId];
 }
 
-function imagePoints(imageIndex) {
-  return allTypePoints().filter((p) => p.imageIndex === imageIndex);
+function hasPointPosition(point) {
+  return (
+    point.imageIndex != null &&
+    Number.isFinite(Number(point.x)) &&
+    Number.isFinite(Number(point.y))
+  );
 }
 
-function currentPoints() {
-  return imagePoints(state.activeImageIndex);
+function imagePoints(imageIndex) {
+  return allTypePoints().filter((p) => p.imageIndex === imageIndex && hasPointPosition(p));
 }
 
 function clamp(value) {
@@ -162,11 +170,6 @@ function clamp(value) {
 
 function formatPercent(value) {
   return Number(value).toFixed(2).replace(/\.00$/, "");
-}
-
-function nextId() {
-  const ids = allTypePoints().map((p) => Number(p.id) || 0);
-  return Math.max(0, ...ids) + 1;
 }
 
 /* ── Rendering ── */
@@ -197,10 +200,10 @@ function renderViewMode() {
 function markerHTML(point, coords, isExtra = false) {
   const selected = point.id === state.selectedPointId && !isExtra ? " is-selected" : "";
   const extraClass = isExtra ? " is-extra" : "";
-  const label = `${point.descricao} - X ${formatPercent(coords.x)} / Y ${formatPercent(coords.y)}`;
+  const label = point.descricao;
   return `
     <button
-      class="marker status-${point.status}${selected}${extraClass}"
+      class="marker${selected}${extraClass}"
       style="--x:${coords.x};--y:${coords.y}"
       type="button"
       data-id="${point.id}"
@@ -293,16 +296,28 @@ function updateMarkersInPlace() {
 }
 
 function renderTable() {
-  dom.tableBody.innerHTML = currentPoints()
+  dom.tableBody.innerHTML = allTypePoints()
     .map((point) => {
-      const selected = point.id === state.selectedPointId ? ' class="is-selected"' : "";
+      const positioned = hasPointPosition(point);
+      const rowClasses = [
+        point.id === state.selectedPointId ? "is-selected" : "",
+        positioned ? "is-positioned" : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const selected = rowClasses ? ` class="${rowClasses}"` : "";
+      const x = positioned ? formatPercent(point.x) : "-";
+      const y = positioned ? formatPercent(point.y) : "-";
+      const action = positioned
+        ? `<button class="table-action is-clear" type="button" data-clear-position="${point.id}" aria-label="Limpar posi\u00e7\u00e3o do ponto ${point.id}" title="Limpar posi\u00e7\u00e3o">x</button>`
+        : `<button class="table-action is-add" type="button" data-place="${point.id}" aria-label="Posicionar ponto ${point.id}" title="Posicionar">+</button>`;
       return `
         <tr${selected} data-id="${point.id}">
           <td><strong>${point.id}</strong></td>
           <td>${point.descricao}</td>
-          <td>${formatPercent(point.x)}</td>
-          <td>${formatPercent(point.y)}</td>
-          <td><button class="table-action" type="button" data-remove="${point.id}" aria-label="Remover ponto ${point.id}">x</button></td>
+          <td class="${positioned ? "" : "coord-empty"}">${x}</td>
+          <td class="${positioned ? "" : "coord-empty"}">${y}</td>
+          <td>${action}</td>
         </tr>
       `;
     })
@@ -322,7 +337,6 @@ function renderJson() {
         descricao: point.descricao,
         x: Number(point.x),
         y: Number(point.y),
-        status: point.status,
         extras: point.extras,
       })),
     })),
@@ -331,46 +345,34 @@ function renderJson() {
 }
 
 function renderCount() {
-  dom.count.textContent = currentPoints().length;
-}
-
-function renderForm() {
-  const selected = allTypePoints().find((p) => p.id === state.selectedPointId);
-  if (!selected) {
-    dom.submitPoint.textContent = "Adicionar ponto";
-    return;
-  }
-  dom.descricao.value = selected.descricao;
-  dom.x.value = selected.x;
-  dom.y.value = selected.y;
-  dom.status.value = selected.status;
-  dom.submitPoint.textContent = "Atualizar ponto";
+  const points = allTypePoints();
+  const positioned = points.filter(hasPointPosition).length;
+  dom.count.textContent = `${positioned}/${points.length}`;
 }
 
 function render() {
-  dom.imageTitle.textContent = currentType().label;
-  dom.imageMeta.textContent = `${activeImage().label} \u2013 Coordenadas em percentual`;
   renderImageTabs();
   renderViewMode();
   renderMaps();
   renderTable();
   renderJson();
   renderCount();
-  renderForm();
 }
 
 /* ── Ações ── */
 
 function selectPoint(id) {
   state.selectedPointId = Number(id);
+  const selected = allTypePoints().find((p) => p.id === state.selectedPointId);
+  if (selected && hasPointPosition(selected) && selected.imageIndex !== state.activeImageIndex) {
+    state.activeImageIndex = selected.imageIndex;
+    lastMapStructureKey = "";
+  }
   render();
 }
 
 function clearSelection() {
   state.selectedPointId = null;
-  dom.form.reset();
-  dom.status.value = "pendente";
-  dom.submitPoint.textContent = "Adicionar ponto";
   render();
 }
 
@@ -386,56 +388,27 @@ function coordsFromEvent(event, mapEl) {
   };
 }
 
-function fillCoords(coords) {
-  dom.x.value = coords.x.toFixed(2);
-  dom.y.value = coords.y.toFixed(2);
-  updateLiveCoords(coords);
-}
+function positionSelectedPoint(coords) {
+  const selected = allTypePoints().find((p) => p.id === state.selectedPointId);
+  if (!selected) return false;
 
-function upsertPoint(event) {
-  event.preventDefault();
-  const descricao = dom.descricao.value.trim() || `Ponto ${nextId()}`;
-  const isUpdate = state.selectedPointId != null;
-  const allPts = allTypePoints();
-
-  /* Validar unicidade de descrição no tipo */
-  if (!isUpdate) {
-    const duplicate = allPts.find(
-      (p) => p.descricao.toLowerCase() === descricao.toLowerCase(),
-    );
-    if (duplicate) {
-      const imgLabel = currentImages()[duplicate.imageIndex]?.label || "?";
-      alert(`"${descricao}" já existe na imagem "${imgLabel}" (ponto #${duplicate.id}).\nCada item só pode aparecer em uma imagem.`);
-      return;
-    }
-  }
-
-  const point = {
-    id: state.selectedPointId || nextId(),
-    descricao,
-    x: Number(clamp(dom.x.value).toFixed(2)),
-    y: Number(clamp(dom.y.value).toFixed(2)),
-    status: dom.status.value,
-    imageIndex: state.activeImageIndex,
-  };
-
-  const index = allPts.findIndex((item) => item.id === point.id);
-  if (index >= 0) {
-    allPts[index] = { ...allPts[index], ...point };
-  } else {
-    allPts.push(point);
-  }
-  state.selectedPointId = point.id;
+  selected.x = Number(coords.x.toFixed(2));
+  selected.y = Number(coords.y.toFixed(2));
+  selected.imageIndex = state.activeImageIndex;
   saveState();
   render();
+  return true;
 }
 
-function removePoint(id) {
-  const typeId = state.selectedTypeId;
-  state.pointsByType[typeId] = allTypePoints().filter((p) => p.id !== Number(id));
+function clearPointPosition(id) {
+  const point = allTypePoints().find((p) => p.id === Number(id));
+  if (!point) return;
+  delete point.x;
+  delete point.y;
+  delete point.imageIndex;
+  delete point.extras;
   if (state.selectedPointId === Number(id)) {
     state.selectedPointId = null;
-    dom.form.reset();
   }
   saveState();
   render();
@@ -445,7 +418,6 @@ function resetCurrentPoints() {
   const typeId = state.selectedTypeId;
   state.pointsByType[typeId] = cloneDefaultPoints();
   state.selectedPointId = null;
-  dom.form.reset();
   saveState();
   render();
 }
@@ -459,7 +431,6 @@ function bindEvents() {
     state.activeImageIndex = 0;
     state.selectedPointId = null;
     lastMapStructureKey = "";
-    dom.form.reset();
     render();
   });
 
@@ -487,14 +458,12 @@ function bindEvents() {
     state.activeImageIndex = idx;
     state.selectedPointId = null;
     lastMapStructureKey = "";
-    dom.form.reset();
     render();
   });
 
   /* Botões da barra superior */
   dom.resetPoints.addEventListener("click", resetCurrentPoints);
   dom.clearSelection.addEventListener("click", clearSelection);
-  dom.form.addEventListener("submit", upsertPoint);
 
   /* ── Eventos do mapa (delegação) ── */
 
@@ -563,22 +532,34 @@ function bindEvents() {
     /* Click em frame não-ativo – trocar para ele */
     if (idx !== state.activeImageIndex) {
       state.activeImageIndex = idx;
+      const coords = coordsFromEvent(e, mapEl);
+      if (positionSelectedPoint(coords)) {
+        return;
+      }
       state.selectedPointId = null;
-      dom.form.reset();
       render();
       return;
     }
 
     /* Click no mapa ativo – preencher coordenadas */
-    fillCoords(coordsFromEvent(e, mapEl));
+    const coords = coordsFromEvent(e, mapEl);
+    if (!positionSelectedPoint(coords)) {
+      updateLiveCoords(coords);
+    }
   });
 
   /* Tabela de pontos */
   dom.tableBody.addEventListener("click", (e) => {
-    const removeButton = e.target.closest("[data-remove]");
-    if (removeButton) {
+    const clearButton = e.target.closest("[data-clear-position]");
+    if (clearButton) {
       e.stopPropagation();
-      removePoint(removeButton.dataset.remove);
+      clearPointPosition(clearButton.dataset.clearPosition);
+      return;
+    }
+    const placeButton = e.target.closest("[data-place]");
+    if (placeButton) {
+      e.stopPropagation();
+      selectPoint(placeButton.dataset.place);
       return;
     }
     const row = e.target.closest("[data-id]");
