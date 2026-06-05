@@ -385,8 +385,8 @@ function renderTable() {
     })
     .join("");
 
-  // Sync column widths between header table and body table so they align perfectly
-  // and are wide enough to fit the actual content (no squeezing)
+  // Sincroniza larguras das colunas entre tabela de cabeçalho e corpo
+  // para alinhamento perfeito e largura suficiente para caber o conteúdo real (sem apertar)
   const wrapEl = document.querySelector(".table-wrap");
   if (wrapEl) {
     const hTable = wrapEl.querySelector(".table-header");
@@ -394,10 +394,10 @@ function renderTable() {
     const bTable = bScroll ? bScroll.querySelector("table") : null;
     const hContainer = wrapEl.querySelector(".table-header-container");
     if (hTable && bTable) {
-      // Force auto layout to compute natural widths from content
+      // Força layout automático para calcular larguras naturais a partir do conteúdo
       hTable.style.tableLayout = "auto";
       bTable.style.tableLayout = "auto";
-      // Force reflow
+      // Força reflow (recalcula layout)
       void hTable.offsetWidth;
       const hThs = hTable.querySelectorAll("thead th");
       const bRows = bTable.querySelectorAll("tbody tr");
@@ -405,7 +405,7 @@ function renderTable() {
       const colCount = hThs.length;
       const maxWidths = new Array(colCount).fill(0);
 
-      // Measure header (force nowrap for true content width)
+      // Mede cabeçalho (força nowrap para obter largura real do conteúdo)
       hThs.forEach((th, i) => {
         const orig = th.style.whiteSpace;
         th.style.whiteSpace = "nowrap";
@@ -414,7 +414,8 @@ function renderTable() {
         th.style.whiteSpace = orig || "";
       });
 
-      // Measure all body cells to find max per column (to fit longest content, no wrap)
+      // Mede todas as células do corpo para encontrar o máximo por coluna
+      // (para caber o conteúdo mais longo, sem quebra de linha)
       bRows.forEach((row) => {
         const tds = row.querySelectorAll("td");
         const origWS = [];
@@ -422,7 +423,7 @@ function renderTable() {
           origWS[i] = tds[i].style.whiteSpace;
           tds[i].style.whiteSpace = "nowrap";
         }
-        void row.offsetWidth; // reflow
+        void row.offsetWidth; // força reflow
         for (let i = 0; i < colCount && i < tds.length; i++) {
           maxWidths[i] = Math.max(
             maxWidths[i],
@@ -432,7 +433,7 @@ function renderTable() {
         }
       });
 
-      // Apply max widths
+      // Aplica as larguras máximas
       hThs.forEach((th, i) => {
         const w = maxWidths[i];
         th.style.width = w + "px";
@@ -445,18 +446,19 @@ function renderTable() {
         }
       });
 
-      // Lock to fixed layout
+      // Trava para layout fixo
       hTable.style.tableLayout = "fixed";
       bTable.style.tableLayout = "fixed";
     }
 
-    // Sync horizontal scroll between header and body (so columns stay aligned when scrolling left/right)
+    // Sincroniza rolagem horizontal entre cabeçalho e corpo
+    // (para manter as colunas alinhadas ao rolar para esquerda/direita)
     if (hContainer && bScroll && !bScroll.dataset.hScrollSynced) {
       bScroll.addEventListener("scroll", () => {
         hContainer.scrollLeft = bScroll.scrollLeft;
       });
       bScroll.dataset.hScrollSynced = "true";
-      // initial sync
+      // sincronização inicial
       hContainer.scrollLeft = bScroll.scrollLeft;
     }
   }
