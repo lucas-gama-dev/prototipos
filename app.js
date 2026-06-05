@@ -2,74 +2,93 @@
    Mapeamento Cartesiano – Checklist de Viaturas SAMU
    ═══════════════════════════════════════════════════════════════════ */
 
-/* ── Catálogo de Veículos ── */
-/* Define os tipos de viaturas SAMU com suas imagens (frente e traseira) */
-const vehicleTypes = [
+/* ── Catálogo de Veículos (metadata) ── */
+/* Apenas define pasta, prefixo e extensões. A versão mais recente é detectada automaticamente. */
+const vehicleTypesConfig = [
   {
     id: "mercedes-sprinter-usb",
     label: "Mercedes Sprinter USB/USA/USI",
-    images: [
-      {
-        id: "mercedes-sprinter-v2-frente",
-        label: "Frente",
-        src: "./MERCEDES-SPRINTER-USB-USA-USI/V2-MERCEDES-SPRINTER-FRENTE.jpg",
-      },
-      {
-        id: "mercedes-sprinter-v2-traseira",
-        label: "Traseira",
-        src: "./MERCEDES-SPRINTER-USB-USA-USI/V2-MERCEDES-SPRINTER-TRASEIRA.jpg",
-      },
-    ],
+    folder: "MERCEDES-SPRINTER-USB-USA-USI",
+    prefix: "MERCEDES-SPRINTER",
+    extensions: ["jpg", "png"],
   },
   {
     id: "renault-master-usb",
     label: "Renault Master USB/USA/USI",
-    images: [
-      {
-        id: "renault-master-v1-frente",
-        label: "Frente",
-        src: "./RENAULT-MASTER-USB-USA-USI/V1-RENAULT-MASTER-FRENTE.png",
-      },
-      {
-        id: "renault-master-v1-traseira",
-        label: "Traseira",
-        src: "./RENAULT-MASTER-USB-USA-USI/V1-RENAULT-MASTER-TRASEIRA.png",
-      },
-    ],
+    folder: "RENAULT-MASTER-USB-USA-USI",
+    prefix: "RENAULT-MASTER",
+    extensions: ["png", "jpg"],
   },
   {
     id: "toyota-sw4",
     label: "Toyota SW4 VIR/VIM",
-    images: [
-      {
-        id: "toyota-sw4-v3-frente",
-        label: "Frente",
-        src: "./TOYOTA-SW4-VIR-VIM/V3-TOYOTA-SW4-FRENTE.png",
-      },
-      {
-        id: "toyota-sw4-v3-traseira",
-        label: "Traseira",
-        src: "./TOYOTA-SW4-VIR-VIM/V3-TOYOTA-SW4-TRASEIRA.png",
-      },
-    ],
+    folder: "TOYOTA-SW4-VIR-VIM",
+    prefix: "TOYOTA-SW4",
+    extensions: ["png", "jpg"],
   },
   {
     id: "yamaha-versys",
     label: "Yamaha Versys Motolância",
-    images: [
-      {
-        id: "yamaha-versys-v1-frente",
-        label: "Frente",
-        src: "./YAMAHA-VERSYS-MOTOLANCIA/V1-YAMAHA-VERSYS-FRENTE.png",
-      },
-      {
-        id: "yamaha-versys-v1-traseira",
-        label: "Traseira",
-        src: "./YAMAHA-VERSYS-MOTOLANCIA/V1-YAMAHA-VERSYS-TRASEIRA.png",
-      },
-    ],
+    folder: "YAMAHA-VERSYS-MOTOLANCIA",
+    prefix: "YAMAHA-VERSYS",
+    extensions: ["png", "jpg"],
   },
 ];
+
+/* Versão máxima a tentar (V1 até V_MAX) */
+const VERSION_MAX = 30;
+
+/* Descobre a versão mais recente de uma imagem numa pasta */
+async function findLatestVersion(folder, view, prefix, extensions) {
+  for (let v = VERSION_MAX; v >= 1; v--) {
+    for (const ext of extensions) {
+      const url = `./${folder}/${view}/V${v}-${prefix}-${view}.${ext}`;
+      try {
+        const res = await fetch(url, { method: "HEAD" });
+        if (res.ok) return { version: v, src: url, ext };
+      } catch {
+        /* rede indisponível, tentar próxima */
+      }
+    }
+  }
+  return null;
+}
+
+/* Resolve todas as imagens de todos os veículos em paralelo */
+async function resolveVehicleImages() {
+  const resolved = await Promise.all(
+    vehicleTypesConfig.map(async (cfg) => {
+      const [frente, traseira] = await Promise.all([
+        findLatestVersion(cfg.folder, "FRENTE", cfg.prefix, cfg.extensions),
+        findLatestVersion(cfg.folder, "TRASEIRA", cfg.prefix, cfg.extensions),
+      ]);
+
+      const images = [];
+      if (frente) {
+        images.push({
+          id: `${cfg.id}-v${frente.version}-frente`,
+          label: "Frente",
+          src: frente.src,
+        });
+      }
+      if (traseira) {
+        images.push({
+          id: `${cfg.id}-v${traseira.version}-traseira`,
+          label: "Traseira",
+          src: traseira.src,
+        });
+      }
+
+      return { id: cfg.id, label: cfg.label, images };
+    }),
+  );
+
+  /* Filtrar tipos que têm pelo menos uma imagem */
+  return resolved.filter((t) => t.images.length > 0);
+}
+
+/* vehicleTypes é preenchido de forma assíncrona na inicialização */
+let vehicleTypes = [];
 
 /* Checklist padrão de 34 pontos de inspeção nas viaturas */
 /* Cobre todas as áreas: dianteira, lateral, traseira e componentes específicos */
@@ -130,7 +149,7 @@ const dom = {
 /* ── Estado ── */
 /* Gerencia o estado global da aplicação (veículo, imagem, seleção, etc.) */
 const state = {
-  selectedTypeId: vehicleTypes[0].id,
+  selectedTypeId: null,
   activeImageIndex: 0,
   viewMode: "single",
   selectedPointId: null,
@@ -720,6 +739,20 @@ function bindEvents() {
 }
 
 /* ── Inicialização ── */
-populateTypeSelect();
-bindEvents();
-render();
+async function init() {
+  dom.mapsContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#667;font-size:0.95rem"><i class="fa-solid fa-spinner fa-spin"></i> Detectando versões de imagens…</div>';
+
+  vehicleTypes = await resolveVehicleImages();
+
+  if (vehicleTypes.length === 0) {
+    dom.mapsContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#c00">Nenhuma imagem encontrada nas pastas.</div>';
+    return;
+  }
+
+  state.selectedTypeId = vehicleTypes[0].id;
+  populateTypeSelect();
+  bindEvents();
+  render();
+}
+
+init();
