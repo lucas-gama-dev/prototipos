@@ -14,3 +14,6 @@ Desktop.ini
 
 # Logs
 *.log
+
+# Playwright MCP browser test artifacts
+.playwright-mcp/
