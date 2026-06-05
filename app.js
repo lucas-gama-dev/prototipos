@@ -312,7 +312,8 @@ function mapFrameHTML(image, index) {
         <div class="map" data-map="${index}" aria-label="Mapa cartesiano – ${image.label}">
           <div class="axis-label axis-origin">(0,0)</div>
           <div class="axis-label axis-x">X → (100,0)</div>
-          <div class="axis-label axis-y">Y ↓ (0,100)</div>
+          <div class="axis-label axis-y">Y ↓</div>
+          <div class="axis-label axis-y-end">(0,100)</div>
           <div class="axis-label axis-end">(100,100)</div>
           <div class="tick tick-x tick-x-25">25</div>
           <div class="tick tick-x tick-x-50">50</div>

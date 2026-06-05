@@ -337,15 +337,15 @@ button:active {
 
 .map-wrap {
     position: relative;
-    padding: 0 0 38px 28px;
+    padding: 28px 12px 44px 34px;
 }
 
 .map {
     position: relative;
     width: 100%;
     overflow: visible;
-    border-top: 2px solid var(--red);
-    border-left: 2px solid var(--red);
+    border-top: 1.5px solid var(--red);
+    border-left: 1.5px solid var(--red);
     background: #fff;
     aspect-ratio: var(--map-aspect, 1 / 1);
 }
@@ -359,19 +359,19 @@ button:active {
 }
 
 .map::before {
-    top: -5px;
+    top: -4px;
     right: -1px;
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent;
-    border-left: 9px solid var(--red);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 8px solid var(--red);
 }
 
 .map::after {
-    left: -5px;
+    left: -4px;
     bottom: -1px;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 9px solid var(--red);
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 8px solid var(--red);
 }
 
 .map img {
@@ -499,45 +499,83 @@ button:active {
     z-index: 5;
     color: var(--red);
     font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    text-shadow:
+        0 1px 0 #fff,
+        0 0 6px rgba(255, 255, 255, 0.88);
     pointer-events: none;
 }
 
+.axis-label {
+    font-size: 0.95rem;
+}
+
 .axis-origin {
-    top: -24px;
+    top: -26px;
     left: 0;
     transform: translateX(-4px);
 }
 
 .axis-x {
     top: -30px;
-    right: -4px;
+    right: 0;
     text-align: right;
 }
 
 .axis-y {
-    left: 0;
-    bottom: 7px;
-    transform: translateX(-28px);
+    left: -34px;
+    bottom: -31px;
+}
+
+.axis-y-end {
+    left: 8px;
+    bottom: -31px;
 }
 
 .axis-end {
-    right: -4px;
-    bottom: 7px;
+    right: 0;
+    bottom: -31px;
 }
 
 .tick {
-    color: #7a7f88;
-    font-size: 0.9rem;
+    color: #707782;
+    font-size: 0.82rem;
+    font-weight: 700;
 }
 
 .tick-x {
-    top: -24px;
+    top: -22px;
+    transform: translateX(-50%);
+}
+
+.tick-x::before {
+    content: "";
+    position: absolute;
+    top: 21px;
+    left: 50%;
+    width: 1.5px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--red);
     transform: translateX(-50%);
 }
 
 .tick-y {
     left: 0;
-    transform: translateX(-30px) translateY(-50%);
+    transform: translateX(-26px) translateY(-50%);
+}
+
+.tick-y::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 26px;
+    width: 8px;
+    height: 1.5px;
+    border-radius: 999px;
+    background: var(--red);
+    transform: translateY(-50%);
 }
 
 .tick-x-25 {
@@ -1202,7 +1240,7 @@ th:nth-child(4) {
     }
 
     .map-wrap {
-        padding-left: 20px;
+        padding: 24px 8px 38px 26px;
     }
 
     .view-controls {
@@ -1223,24 +1261,44 @@ th:nth-child(4) {
     }
 
     .axis-x {
-        top: -20px;
-        right: -4px;
+        top: -36px;
+        right: 0;
         font-size: 0.78rem;
     }
 
     .axis-y,
     .axis-end,
     .axis-origin,
+    .axis-y-end,
     .tick {
         font-size: 0.75rem;
     }
 
     .axis-y {
-        transform: translateX(-20px);
+        left: -26px;
+        bottom: -28px;
+    }
+
+    .axis-y-end {
+        left: 6px;
+        bottom: -28px;
+    }
+
+    .axis-end {
+        bottom: -28px;
     }
 
     .tick-y {
         transform: translateX(-22px) translateY(-50%);
+    }
+
+    .tick-y::before {
+        left: 22px;
+        width: 6px;
+    }
+
+    .tick-x::before {
+        height: 6px;
     }
 
     .marker {
