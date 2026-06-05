@@ -37,15 +37,17 @@ Ferramenta de **mapeamento cartesiano** para checklist visual de viaturas do SAM
 
 2. Abra no navegador:
    ```text
-   http://localhost:8017/preview.html
+   http://localhost:8017/
    ```
+
+   (o servidor servirá automaticamente o `index.html`)
 
 3. Selecione o tipo de veículo, escolha a vista (frente/traseira) e clique na imagem para posicionar pontos de checklist.
 
 ## 📁 Estrutura
 
 ```text
-├── preview.html          # Página principal
+├── index.html            # Página principal
 ├── app.js                # Lógica da aplicação
 ├── style.css             # Estilos (responsivo)
 ├── MERCEDES-SPRINTER-USB-USA-USI/

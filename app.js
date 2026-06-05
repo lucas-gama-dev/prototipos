@@ -122,8 +122,6 @@ const dom = {
   modeSingle: document.querySelector("#modeSingle"),
   modeDual: document.querySelector("#modeDual"),
   liveCoords: document.querySelector("#liveCoords"),
-  resetPoints: document.querySelector("#resetPoints"),
-  clearSelection: document.querySelector("#clearSelection"),
   count: document.querySelector("#count"),
   tableBody: document.querySelector("#tableBody"),
   jsonOutput: document.querySelector("#jsonOutput"),
@@ -386,6 +384,82 @@ function renderTable() {
       `;
     })
     .join("");
+
+  // Sync column widths between header table and body table so they align perfectly
+  // and are wide enough to fit the actual content (no squeezing)
+  const wrapEl = document.querySelector(".table-wrap");
+  if (wrapEl) {
+    const hTable = wrapEl.querySelector(".table-header");
+    const bScroll = wrapEl.querySelector(".table-body");
+    const bTable = bScroll ? bScroll.querySelector("table") : null;
+    const hContainer = wrapEl.querySelector(".table-header-container");
+    if (hTable && bTable) {
+      // Force auto layout to compute natural widths from content
+      hTable.style.tableLayout = "auto";
+      bTable.style.tableLayout = "auto";
+      // Force reflow
+      void hTable.offsetWidth;
+      const hThs = hTable.querySelectorAll("thead th");
+      const bRows = bTable.querySelectorAll("tbody tr");
+
+      const colCount = hThs.length;
+      const maxWidths = new Array(colCount).fill(0);
+
+      // Measure header (force nowrap for true content width)
+      hThs.forEach((th, i) => {
+        const orig = th.style.whiteSpace;
+        th.style.whiteSpace = "nowrap";
+        void th.offsetWidth;
+        maxWidths[i] = Math.max(maxWidths[i], th.getBoundingClientRect().width);
+        th.style.whiteSpace = orig || "";
+      });
+
+      // Measure all body cells to find max per column (to fit longest content, no wrap)
+      bRows.forEach((row) => {
+        const tds = row.querySelectorAll("td");
+        const origWS = [];
+        for (let i = 0; i < colCount && i < tds.length; i++) {
+          origWS[i] = tds[i].style.whiteSpace;
+          tds[i].style.whiteSpace = "nowrap";
+        }
+        void row.offsetWidth; // reflow
+        for (let i = 0; i < colCount && i < tds.length; i++) {
+          maxWidths[i] = Math.max(
+            maxWidths[i],
+            tds[i].getBoundingClientRect().width,
+          );
+          tds[i].style.whiteSpace = origWS[i] || "";
+        }
+      });
+
+      // Apply max widths
+      hThs.forEach((th, i) => {
+        const w = maxWidths[i];
+        th.style.width = w + "px";
+      });
+
+      bRows.forEach((row) => {
+        const tds = row.querySelectorAll("td");
+        for (let i = 0; i < colCount && i < tds.length; i++) {
+          tds[i].style.width = maxWidths[i] + "px";
+        }
+      });
+
+      // Lock to fixed layout
+      hTable.style.tableLayout = "fixed";
+      bTable.style.tableLayout = "fixed";
+    }
+
+    // Sync horizontal scroll between header and body (so columns stay aligned when scrolling left/right)
+    if (hContainer && bScroll && !bScroll.dataset.hScrollSynced) {
+      bScroll.addEventListener("scroll", () => {
+        hContainer.scrollLeft = bScroll.scrollLeft;
+      });
+      bScroll.dataset.hScrollSynced = "true";
+      // initial sync
+      hContainer.scrollLeft = bScroll.scrollLeft;
+    }
+  }
 }
 
 /* Gera e exibe JSON com estrutura completa: tipo, imagens e pontos posicionados */
@@ -440,12 +514,18 @@ function selectPoint(id) {
     lastMapStructureKey = "";
   }
   render();
+  scrollSelectedRowIntoView();
 }
 
-/* Limpa a seleção atual de ponto */
-function clearSelection() {
-  state.selectedPointId = null;
-  render();
+/* Traz a linha da tabela correspondente ao ponto selecionado para a área visível */
+/* (útil quando o usuário clica num marcador na imagem e a tabela está rolada) */
+function scrollSelectedRowIntoView() {
+  if (!state.selectedPointId) return;
+  const row = document.querySelector(`tr[data-id="${state.selectedPointId}"]`);
+  const wrap = document.querySelector(".table-wrap");
+  if (row && wrap) {
+    wrap.scrollTop = row.offsetTop;
+  }
 }
 
 /* Atualiza a exibição de coordenadas em tempo real (seguindo o mouse) */
@@ -472,6 +552,7 @@ function positionSelectedPoint(coords) {
   selected.imageIndex = state.activeImageIndex;
   saveState();
   render();
+  scrollSelectedRowIntoView();
   return true;
 }
 
@@ -486,15 +567,6 @@ function clearPointPosition(id) {
   if (state.selectedPointId === Number(id)) {
     state.selectedPointId = null;
   }
-  saveState();
-  render();
-}
-
-/* Reseta todos os pontos do veículo atual para o estado padrão */
-function resetCurrentPoints() {
-  const typeId = state.selectedTypeId;
-  state.pointsByType[typeId] = cloneDefaultPoints();
-  state.selectedPointId = null;
   saveState();
   render();
 }
@@ -537,10 +609,6 @@ function bindEvents() {
     lastMapStructureKey = "";
     render();
   });
-
-  /* Botões da barra superior – reset e limpar seleção */
-  dom.resetPoints.addEventListener("click", resetCurrentPoints);
-  dom.clearSelection.addEventListener("click", clearSelection);
 
   /* ── Eventos do mapa (delegação) ── */
 
