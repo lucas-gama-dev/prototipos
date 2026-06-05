@@ -15,7 +15,7 @@
         <main class="app">
             <header class="topbar">
                 <div class="title-block">
-                    <h1>Mapeamento Cartesiano (X/Y)</h1>
+                    <h1><i class="fa-solid fa-map-location-dot"></i> Mapeamento Cartesiano (X/Y)</h1>
                     <span class="badge badge-prototype">PROTÓTIPO</span>
                 </div>
                 <div class="actions">
@@ -137,7 +137,7 @@
                     </div>
 
                     <section class="help-box" aria-label="Como funciona">
-                        <h3>Como funciona</h3>
+                        <h3><i class="fa-solid fa-circle-info"></i> Como funciona</h3>
                         <ul>
                             <li>
                                 <strong>(0,0)</strong> = canto superior esquerdo
@@ -157,10 +157,27 @@
                         </ul>
                     </section>
 
-                    <details class="json-box">
-                        <summary>JSON dos pontos</summary>
-                        <pre id="jsonOutput"></pre>
-                    </details>
+                    <button id="btnOpenJson" class="json-trigger" type="button">
+                        <i class="fa-solid fa-code"></i> JSON dos pontos
+                    </button>
+
+                    <!-- Modal JSON -->
+                    <div id="jsonModal" class="modal-overlay" hidden>
+                        <div class="modal-box">
+                            <div class="modal-header">
+                                <h3><i class="fa-solid fa-code"></i> JSON dos pontos</h3>
+                                <div class="modal-actions">
+                                    <button id="btnCopyJson" class="modal-copy" type="button" title="Copiar JSON">
+                                        <i class="fa-regular fa-copy"></i> Copiar
+                                    </button>
+                                    <button id="btnCloseJson" class="modal-close" type="button" aria-label="Fechar" title="Fechar">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <pre id="jsonOutput"></pre>
+                        </div>
+                    </div>
                 </aside>
             </section>
         </main>

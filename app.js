@@ -144,6 +144,10 @@ const dom = {
   count: document.querySelector("#count"),
   tableBody: document.querySelector("#tableBody"),
   jsonOutput: document.querySelector("#jsonOutput"),
+  btnOpenJson: document.querySelector("#btnOpenJson"),
+  btnCloseJson: document.querySelector("#btnCloseJson"),
+  btnCopyJson: document.querySelector("#btnCopyJson"),
+  jsonModal: document.querySelector("#jsonModal"),
 };
 
 /* ── Estado ── */
@@ -735,6 +739,46 @@ function bindEvents() {
     }
     const row = e.target.closest("[data-id]");
     if (row) selectPoint(row.dataset.id);
+  });
+
+  /* ── Modal JSON ── */
+  /* Abre o modal ao clicar no botão "JSON dos pontos" */
+  dom.btnOpenJson.addEventListener("click", () => {
+    renderJson();
+    dom.jsonModal.hidden = false;
+  });
+
+  /* Fecha o modal ao clicar no botão X */
+  dom.btnCloseJson.addEventListener("click", () => {
+    dom.jsonModal.hidden = true;
+  });
+
+  /* Fecha o modal ao clicar no overlay (fora da caixa) */
+  dom.jsonModal.addEventListener("click", (e) => {
+    if (e.target === dom.jsonModal) {
+      dom.jsonModal.hidden = true;
+    }
+  });
+
+  /* Fecha o modal ao pressionar Escape */
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !dom.jsonModal.hidden) {
+      dom.jsonModal.hidden = true;
+    }
+  });
+
+  /* Copia o JSON para o clipboard com feedback visual */
+  dom.btnCopyJson.addEventListener("click", () => {
+    const text = dom.jsonOutput.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = dom.btnCopyJson;
+      btn.classList.add("is-copied");
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+      setTimeout(() => {
+        btn.classList.remove("is-copied");
+        btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar';
+      }, 2000);
+    });
   });
 }
 
