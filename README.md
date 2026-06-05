@@ -36,6 +36,7 @@ Ferramenta de **mapeamento cartesiano** para checklist visual de viaturas do SAM
    ```
 
 2. Abra no navegador:
+
    ```text
    http://localhost:8017/
    ```

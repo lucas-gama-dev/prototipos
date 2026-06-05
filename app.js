@@ -371,8 +371,8 @@ function renderTable() {
       const x = positioned ? formatPercent(point.x) : "-";
       const y = positioned ? formatPercent(point.y) : "-";
       const action = positioned
-        ? `<button class="table-action is-clear" type="button" data-clear-position="${point.id}" aria-label="Limpar posição do ponto ${point.id}" title="Limpar posição">x</button>`
-        : `<button class="table-action is-add" type="button" data-place="${point.id}" aria-label="Posicionar ponto ${point.id}" title="Posicionar">+</button>`;
+        ? `<button class="table-action is-clear" type="button" data-clear-position="${point.id}" aria-label="Limpar posição do ponto ${point.id}" title="Limpar posição"><i class="fa-solid fa-trash-can"></i></button>`
+        : `<button class="table-action is-add" type="button" data-place="${point.id}" aria-label="Posicionar ponto ${point.id}" title="Posicionar"><i class="fa-solid fa-plus"></i></button>`;
       return `
         <tr${selected} data-id="${point.id}">
           <td><strong>${point.id}</strong></td>

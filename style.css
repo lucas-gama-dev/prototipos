@@ -694,24 +694,27 @@ th:nth-child(4) {
 }
 
 .table-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 30px;
     height: 30px;
     min-height: 30px;
     padding: 0;
     color: var(--red);
-    font-weight: 900;
+    font-size: 0.82rem;
 }
 
 .table-action.is-add {
-    border-color: #b8c7d9;
-    background: #eef4fb;
-    color: var(--blue);
-    font-size: 1.08rem;
+    border-color: #b0d9b0;
+    background: #eef8ee;
+    color: #2e8b3e;
+    font-size: 0.92rem;
 }
 
 .table-action.is-add:hover {
-    border-color: var(--blue);
-    background: #e3effa;
+    border-color: #2e8b3e;
+    background: #dff2df;
 }
 
 .coord-empty {
@@ -853,7 +856,7 @@ th:nth-child(4) {
         display: flex;
         min-height: 0;
         height: 100%;
-        overflow: hidden;
+        overflow: visible;
     }
 
     .maps-container.mode-dual {
