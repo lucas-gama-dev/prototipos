@@ -1,0 +1,59 @@
+:root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-strong: #f8fafc;
+    --text: #15171a;
+    --muted: #5d6673;
+    --line: #d9dee7;
+    --line-soft: #e9edf3;
+    --red: #e21b1b;
+    --red-dark: #be1111;
+    --blue: #2267a8;
+    --shadow: 0 16px 38px rgba(24, 31, 42, 0.11);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition:
+        border-color 0.16s ease,
+        background-color 0.16s ease,
+        transform 0.16s ease;
+}
+
+button:hover {
+    border-color: #aeb7c5;
+    background: #f9fafb;
+}
+
+button:active {
+    transform: translateY(1px);
+}

@@ -1,0 +1,15 @@
+export const dom = {
+  typeSelect: document.querySelector("#typeSelect"),
+  mapsContainer: document.querySelector("#mapsContainer"),
+  imageTabs: document.querySelector("#imageTabs"),
+  modeSingle: document.querySelector("#modeSingle"),
+  modeDual: document.querySelector("#modeDual"),
+  liveCoords: document.querySelector("#liveCoords"),
+  count: document.querySelector("#count"),
+  tableBody: document.querySelector("#tableBody"),
+  jsonOutput: document.querySelector("#jsonOutput"),
+  btnOpenJson: document.querySelector("#btnOpenJson"),
+  btnCloseJson: document.querySelector("#btnCloseJson"),
+  btnCopyJson: document.querySelector("#btnCopyJson"),
+  jsonModal: document.querySelector("#jsonModal"),
+};

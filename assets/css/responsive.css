@@ -1,0 +1,336 @@
+@media (min-width: 1181px) {
+    body {
+        overflow: hidden;
+    }
+
+    .app {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        height: 100dvh;
+        padding: 12px 0;
+    }
+
+    .topbar {
+        align-items: end;
+        gap: 14px;
+        margin-bottom: 8px;
+    }
+
+    .title-block h1 {
+        font-size: 1.42rem;
+    }
+
+    .title-block p {
+        max-width: 640px;
+        margin-top: 4px;
+        font-size: 0.84rem;
+        line-height: 1.28;
+    }
+
+    .actions {
+        flex: 0 0 auto;
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+
+    .vehicle-field select {
+        min-width: 300px;
+        height: 32px;
+    }
+
+    button {
+        min-height: 32px;
+        padding-inline: 10px;
+    }
+
+    .layout {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        height: 100%;
+        min-height: 0;
+    }
+
+    .canvas-card,
+    .panel {
+        height: 100%;
+        min-height: 0;
+    }
+
+    .canvas-card {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        padding: 12px 14px 14px;
+    }
+
+    .canvas-heading {
+        margin-bottom: 4px;
+    }
+
+    .canvas-heading strong {
+        font-size: 0.88rem;
+    }
+
+    .canvas-heading span {
+        display: none;
+    }
+
+    .live-coords {
+        min-width: 126px;
+        padding: 5px 8px;
+        font-size: 0.85rem;
+    }
+
+    .maps-container {
+        display: flex;
+        min-height: 0;
+        height: 100%;
+        overflow: visible;
+    }
+
+    .maps-container.mode-dual {
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .map-frame {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        height: 100%;
+        min-width: 0;
+        min-height: 0;
+        padding: 2px;
+    }
+
+    .maps-container.mode-dual .map-frame {
+        /* Largura proporcional ao aspecto da imagem (--map-grow = w/h), de modo
+           que os dois quadros fiquem com a MESMA ALTURA sem distorcer as fotos. */
+        flex: var(--map-grow, 1) 1 0;
+        height: auto;
+        max-height: 100%;
+        padding: 10px 8px 8px;
+    }
+
+    .maps-container.mode-dual .map-wrap {
+        display: block;
+        flex: none;
+        /* Espaco para os rotulos dos eixos (Y a esquerda, (0,100)/(100,100) embaixo)
+           ficarem fora da area da imagem e nao tocarem a borda do quadro. */
+        padding: 22px 0 40px 28px;
+    }
+
+    .maps-container.mode-dual .map {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        max-height: none;
+    }
+
+    .map-wrap {
+        display: flex;
+        flex: 1;
+        align-items: flex-start;
+        justify-content: center;
+        min-height: 0;
+        padding: 22px 0 22px 28px;
+    }
+
+    .map {
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    .map img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .marker {
+        width: 29px;
+        min-width: 29px;
+        height: 29px;
+        min-height: 29px;
+        font-size: 0.88rem;
+        line-height: 29px;
+    }
+
+    .panel {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto auto;
+    }
+
+    .panel-header {
+        padding: 12px 12px 8px;
+    }
+
+    .panel h2 {
+        font-size: 0.98rem;
+    }
+
+    .panel h2 i {
+        margin-right: 6px;
+    }
+
+    .badge {
+        padding: 4px 8px;
+    }
+
+    .badge-prototype {
+        margin-right: 10px;
+        padding: 4px 10px;
+        font-size: 0.82rem;
+    }
+
+    .table-wrap {
+        min-height: 0;
+        max-height: none;
+        overflow: auto;
+    }
+
+    table {
+        font-size: 0.78rem;
+    }
+
+    th,
+    td {
+        padding: 6px 8px;
+    }
+
+    .table-action {
+        width: 24px;
+        height: 24px;
+        min-height: 24px;
+    }
+
+    .json-box {
+        margin: 8px 12px 10px;
+    }
+
+    .json-box summary {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 1180px) {
+    .topbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .actions {
+        justify-content: flex-start;
+    }
+
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .panel {
+        order: 2;
+    }
+}
+
+@media (max-width: 720px) {
+    .app {
+        width: min(100% - 24px, 1680px);
+        padding-top: 16px;
+    }
+
+    .actions,
+    .actions button,
+    .vehicle-field,
+    .vehicle-field select {
+        width: 100%;
+    }
+
+    .canvas-card {
+        padding: 14px 12px 18px;
+    }
+
+    .canvas-heading {
+        display: flex;
+        align-items: stretch;
+        flex-direction: column;
+        margin-bottom: 22px;
+    }
+
+    .live-coords {
+        width: 100%;
+    }
+
+    .map-wrap {
+        padding: 24px 8px 38px 26px;
+    }
+
+    .view-controls {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .tab-btn {
+        min-height: 30px;
+        padding: 0 10px;
+        font-size: 0.75rem;
+    }
+
+    .mode-btn {
+        width: 32px;
+        height: 30px;
+        min-height: 30px;
+    }
+
+    .axis-x {
+        top: -36px;
+        right: 0;
+        font-size: 0.78rem;
+    }
+
+    .axis-y,
+    .axis-end,
+    .axis-origin,
+    .axis-y-end,
+    .tick {
+        font-size: 0.75rem;
+    }
+
+    .axis-y {
+        bottom: -28px;
+        left: -26px;
+    }
+
+    .axis-y-end {
+        bottom: -28px;
+        left: 6px;
+    }
+
+    .axis-end {
+        bottom: -28px;
+    }
+
+    .tick-y {
+        transform: translateX(-22px) translateY(-50%);
+    }
+
+    .tick-y::before {
+        left: 22px;
+        width: 6px;
+    }
+
+    .tick-x::before {
+        height: 6px;
+    }
+
+    .marker {
+        width: 28px;
+        min-width: 28px;
+        height: 28px;
+        min-height: 28px;
+        font-size: 0.83rem;
+        line-height: 28px;
+    }
+}

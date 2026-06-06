@@ -9,7 +9,7 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
-        <link rel="stylesheet" href="./style.css" />
+        <link rel="stylesheet" href="./assets/css/main.css" />
     </head>
     <body>
         <main class="app">
@@ -116,46 +116,19 @@
                     </div>
 
                     <div class="table-wrap">
-                        <div class="table-header-container">
-                            <table class="table-header">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Descri&ccedil;&atilde;o</th>
-                                        <th>X (%)</th>
-                                        <th>Y (%)</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                            </table>
-                        </div>
-                        <div class="table-body">
-                            <table>
-                                <tbody id="tableBody"></tbody>
-                            </table>
-                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>N&ordm;</th>
+                                    <th>Descri&ccedil;&atilde;o</th>
+                                    <th>X (%)</th>
+                                    <th>Y (%)</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
                     </div>
-
-                    <section class="help-box" aria-label="Como funciona">
-                        <h3><i class="fa-solid fa-circle-info"></i> Como funciona</h3>
-                        <ul>
-                            <li>
-                                <strong>(0,0)</strong> = canto superior esquerdo
-                            </li>
-                            <li>
-                                <strong>(100,0)</strong> = canto superior
-                                direito
-                            </li>
-                            <li>
-                                <strong>(0,100)</strong> = canto inferior
-                                esquerdo
-                            </li>
-                            <li>
-                                <strong>(100,100)</strong> = canto inferior
-                                direito
-                            </li>
-                        </ul>
-                    </section>
 
                     <button id="btnOpenJson" class="json-trigger" type="button">
                         <i class="fa-solid fa-code"></i> JSON dos pontos
@@ -182,6 +155,6 @@
             </section>
         </main>
 
-        <script src="./app.js"></script>
+        <script type="module" src="./assets/js/main.js"></script>
     </body>
 </html>
