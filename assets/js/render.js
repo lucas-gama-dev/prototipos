@@ -9,7 +9,7 @@ import {
   imagePoints,
   state,
 } from "./state.js";
-import { formatPercent } from "./utils.js";
+import { escapeHtml, formatPercent } from "./utils.js";
 
 let lastMapStructureKey = "";
 
@@ -246,10 +246,169 @@ export function renderJson() {
   dom.jsonOutput.textContent = JSON.stringify(payload, null, 2);
 }
 
+// ---- Simulacao de armazenamento em banco (MySQL) ----
+
+const DB_TABLE = "checklist_pontos_viatura";
+
+const DB_DDL = `CREATE TABLE \`${DB_TABLE}\` (
+  \`id\`                 INT UNSIGNED              NOT NULL AUTO_INCREMENT, -- PK sintetica (simulada 1..34 no prototipo)
+  \`viatura_tipo_id\`    VARCHAR(40)               NOT NULL,                -- FK -> viaturas_tipos.id (ex.: 'mercedes-sprinter-usb')
+  \`viatura_tipo_label\` VARCHAR(80)               NOT NULL,                -- desnormalizado p/ leitura
+  \`ordem\`              TINYINT UNSIGNED          NOT NULL,                -- n de ordem do checklist (1..34) = point.id
+  \`descricao\`          VARCHAR(120)              NOT NULL,                -- point.descricao
+  \`image_index\`        TINYINT UNSIGNED          DEFAULT NULL,            -- 0=Frente, 1=Traseira
+  \`imagem_face\`        ENUM('frente','traseira') DEFAULT NULL,            -- derivado de images[image_index].label
+  \`pos_x\`              DECIMAL(5,2)              DEFAULT NULL,            -- 0.00..100.00
+  \`pos_y\`              DECIMAL(5,2)              DEFAULT NULL,
+  \`extras_json\`        JSON                      DEFAULT NULL,            -- array [{x,y}] de pontos adicionais
+  \`posicionado\`        TINYINT(1)                NOT NULL DEFAULT 0,      -- flag derivada (espelha hasPointPosition)
+  PRIMARY KEY (\`id\`),
+  UNIQUE KEY \`uq_viatura_ordem\` (\`viatura_tipo_id\`, \`ordem\`),
+  KEY \`idx_posicionado\` (\`viatura_tipo_id\`, \`posicionado\`),
+  CONSTRAINT \`fk_pcv_viatura\` FOREIGN KEY (\`viatura_tipo_id\`) REFERENCES \`viaturas_tipos\` (\`id\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+
+const DB_COLUMNS = [
+  { name: "id", type: "int unsigned", cls: "is-pk", icon: "fa-key", title: "PK · AUTO_INCREMENT" },
+  { name: "viatura_tipo_id", type: "varchar(40)", cls: "is-fk", icon: "fa-link", title: "FK → viaturas_tipos.id" },
+  { name: "viatura_tipo_label", type: "varchar(80)" },
+  { name: "ordem", type: "tinyint unsigned", title: "UNIQUE(viatura_tipo_id, ordem)" },
+  { name: "descricao", type: "varchar(120)" },
+  { name: "image_index", type: "tinyint unsigned" },
+  { name: "imagem_face", type: "enum('frente','traseira')" },
+  { name: "pos_x", type: "decimal(5,2)" },
+  { name: "pos_y", type: "decimal(5,2)" },
+  { name: "extras_json", type: "json" },
+  { name: "posicionado", type: "tinyint(1)" },
+];
+
+// Calcula os valores de uma linha (1 ponto) conforme o esquema do banco.
+function dbRowValues(point, index, type, images) {
+  const positioned = hasPointPosition(point);
+  const imageIndex = positioned ? point.imageIndex : null;
+  const face =
+    positioned && images[imageIndex]
+      ? images[imageIndex].label.toLowerCase()
+      : null;
+
+  return {
+    id: index + 1,
+    viatura_tipo_id: type.id,
+    viatura_tipo_label: type.label,
+    ordem: point.id,
+    descricao: point.descricao,
+    image_index: imageIndex,
+    imagem_face: face,
+    pos_x: positioned ? Number(point.x).toFixed(2) : null,
+    pos_y: positioned ? Number(point.y).toFixed(2) : null,
+    extras_json:
+      point.extras && point.extras.length ? JSON.stringify(point.extras) : null,
+    posicionado: positioned,
+  };
+}
+
+export function renderDbView() {
+  const type = currentType();
+
+  if (!type) {
+    dom.dbView.innerHTML = "";
+    dom.dbStatusbar.textContent = "";
+    return;
+  }
+
+  dom.dbDdl.textContent = DB_DDL;
+
+  const images = currentImages();
+  const points = allTypePoints();
+
+  const headNames = DB_COLUMNS.map((col) => {
+    const icon = col.icon ? `<i class="fa-solid ${col.icon}"></i> ` : "";
+    return `<th class="${col.cls || ""}" title="${col.title || col.name}">${icon}${col.name}</th>`;
+  }).join("");
+
+  const headTypes = DB_COLUMNS.map((col) => `<th>${col.type}</th>`).join("");
+
+  const nullCell = `<td class="db-null-cell"><span class="db-null">NULL</span></td>`;
+  const num = (value) =>
+    value == null ? nullCell : `<td class="db-num">${value}</td>`;
+
+  const tbody = points
+    .map((point, index) => {
+      const row = dbRowValues(point, index, type, images);
+      const cells = [
+        `<td class="db-num db-pk">${row.id}</td>`,
+        `<td class="db-fk">${escapeHtml(row.viatura_tipo_id)}</td>`,
+        `<td>${escapeHtml(row.viatura_tipo_label)}</td>`,
+        num(row.ordem),
+        `<td>${escapeHtml(row.descricao)}</td>`,
+        num(row.image_index),
+        row.imagem_face == null
+          ? nullCell
+          : `<td><span class="db-enum">${escapeHtml(row.imagem_face)}</span></td>`,
+        num(row.pos_x),
+        num(row.pos_y),
+        row.extras_json == null
+          ? nullCell
+          : `<td class="db-json" title="${escapeHtml(row.extras_json)}">${escapeHtml(row.extras_json)}</td>`,
+        `<td><span class="db-bool ${row.posicionado ? "is-on" : "is-off"}">${row.posicionado ? 1 : 0}</span></td>`,
+      ].join("");
+
+      return `<tr class="${row.posicionado ? "" : "row-null"}">${cells}</tr>`;
+    })
+    .join("");
+
+  dom.dbView.innerHTML =
+    `<thead><tr class="db-colnames">${headNames}</tr><tr class="db-coltypes">${headTypes}</tr></thead>` +
+    `<tbody>${tbody}</tbody>`;
+
+  const total = points.length;
+  const positionedCount = points.filter(hasPointPosition).length;
+  dom.dbStatusbar.innerHTML =
+    `<span>${total} rows in set</span> &middot; ` +
+    `<span class="db-ok">${positionedCount} posicionadas</span> &middot; ` +
+    `<span>${total - positionedCount} NULL</span>`;
+}
+
+// Gera DDL + INSERTs equivalentes (para o botao "Copiar SQL").
+export function buildDbSql() {
+  const type = currentType();
+  if (!type) return DB_DDL;
+
+  const images = currentImages();
+  const points = allTypePoints();
+  const quote = (value) =>
+    value == null ? "NULL" : `'${String(value).replace(/'/g, "''")}'`;
+  const raw = (value) => (value == null ? "NULL" : value);
+
+  const values = points
+    .map((point, index) => {
+      const row = dbRowValues(point, index, type, images);
+      return (
+        `  (${row.id}, ${quote(row.viatura_tipo_id)}, ${quote(row.viatura_tipo_label)}, ` +
+        `${row.ordem}, ${quote(row.descricao)}, ${raw(row.image_index)}, ${quote(row.imagem_face)}, ` +
+        `${raw(row.pos_x)}, ${raw(row.pos_y)}, ${quote(row.extras_json)}, ${row.posicionado ? 1 : 0})`
+      );
+    })
+    .join(",\n");
+
+  return (
+    `${DB_DDL}\n\n` +
+    `INSERT INTO \`${DB_TABLE}\`\n` +
+    "  (`id`, `viatura_tipo_id`, `viatura_tipo_label`, `ordem`, `descricao`, " +
+    "`image_index`, `imagem_face`, `pos_x`, `pos_y`, `extras_json`, `posicionado`)\n" +
+    `VALUES\n${values};\n`
+  );
+}
+
 function renderCount() {
   const points = allTypePoints();
+  const total = points.length;
   const positioned = points.filter(hasPointPosition).length;
-  dom.count.textContent = `${positioned}/${points.length}`;
+  dom.count.textContent = `${positioned}/${total}`;
+
+  const percent = total ? Math.round((positioned / total) * 100) : 0;
+  dom.progressBar.style.width = `${percent}%`;
+  dom.progress.setAttribute("aria-valuenow", String(percent));
 }
 
 export function render() {
@@ -258,5 +417,6 @@ export function render() {
   renderMaps();
   renderTable();
   renderJson();
+  renderDbView();
   renderCount();
 }

@@ -1,0 +1,222 @@
+/* Simulacao de armazenamento em banco (MySQL) exibida no modal.
+   Painel claro estilo cliente de banco (phpMyAdmin/DBeaver) dentro do modal. */
+
+.modal-box-db {
+    max-width: 1040px;
+}
+
+.db-view {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    background: #fff;
+    color: #1f2430;
+    font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+    font-size: 12.5px;
+    line-height: 1.4;
+}
+
+/* Toolbar */
+.db-toolbar {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fafbfc;
+}
+
+.db-table-name {
+    color: #e21b1b;
+    font-weight: 700;
+}
+
+.db-chip {
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #eceff3;
+    color: #555;
+    font-size: 11px;
+}
+
+/* CREATE TABLE colapsavel */
+.db-ddl {
+    flex: 0 0 auto;
+    border-bottom: 1px solid #e5e7eb;
+    background: #1e2430;
+}
+
+.db-ddl summary {
+    padding: 7px 14px;
+    color: #cbd5e1;
+    font-size: 11.5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.db-ddl summary i {
+    margin-right: 6px;
+    opacity: 0.8;
+}
+
+.db-ddl pre {
+    flex: none;
+    max-height: 230px;
+    overflow: auto;
+    margin: 0;
+    padding: 12px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: #d6deeb;
+    font-size: 11.5px;
+    line-height: 1.55;
+    white-space: pre;
+}
+
+/* Grade rolavel */
+.db-grid-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.db-grid {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.db-grid th,
+.db-grid td {
+    padding: 5px 10px;
+    border: 1px solid #e3e3e3;
+    text-align: left;
+}
+
+/* Cabecalho: linha de nomes */
+.db-colnames th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    height: 28px;
+    background: #e21b1b;
+    color: #fff;
+    font-weight: 700;
+    border-color: #c81616;
+}
+
+.db-colnames th.is-pk {
+    background: #f4c542;
+    color: #5a4500;
+    border-color: #e0ad1f;
+}
+
+.db-colnames th.is-fk {
+    background: #2f6fed;
+    color: #fff;
+    border-color: #2257c9;
+}
+
+.db-colnames th i {
+    margin-right: 4px;
+    opacity: 0.9;
+}
+
+/* Cabecalho: linha de tipos MySQL */
+.db-coltypes th {
+    position: sticky;
+    top: 28px;
+    z-index: 2;
+    height: 22px;
+    background: #2b2b2b;
+    color: #cfcfcf;
+    font-size: 11px;
+    font-style: italic;
+    font-weight: 400;
+    border-color: #3a3a3a;
+}
+
+/* Corpo */
+.db-grid tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.db-grid tbody tr.row-null {
+    background: #fcfcfc;
+}
+
+.db-grid tbody tr:hover {
+    background: #eef4ff;
+    box-shadow: inset 2px 0 0 #2e8b3e;
+}
+
+.db-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.db-pk {
+    background: #fff7e0;
+    font-weight: 700;
+}
+
+.db-fk {
+    color: #2f6fed;
+}
+
+.db-null-cell {
+    background: #f3f4f6;
+}
+
+.db-null {
+    color: #9aa0a6;
+    font-style: italic;
+}
+
+.db-enum {
+    padding: 1px 8px;
+    border: 1px solid #d4dcff;
+    border-radius: 11px;
+    background: #eef2ff;
+    color: #3b4cca;
+    font-size: 11px;
+}
+
+.db-bool {
+    font-weight: 700;
+}
+
+.db-bool.is-on {
+    padding: 1px 7px;
+    border-radius: 4px;
+    background: #e7f6ea;
+    color: #2e8b3e;
+}
+
+.db-bool.is-off {
+    color: #9aa0a6;
+}
+
+.db-json {
+    max-width: 180px;
+    overflow: hidden;
+    color: #8a5a00;
+    text-overflow: ellipsis;
+}
+
+/* Barra de status (estilo phpMyAdmin) */
+.db-statusbar {
+    flex: 0 0 auto;
+    padding: 6px 14px;
+    border-top: 1px solid #e5e7eb;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 11.5px;
+}
+
+.db-statusbar .db-ok {
+    color: #2e8b3e;
+    font-weight: 700;
+}

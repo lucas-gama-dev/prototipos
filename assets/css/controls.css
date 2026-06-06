@@ -27,6 +27,27 @@
     color: var(--text);
 }
 
+.btn-save {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-color: #2e8b3e;
+    background: #2e8b3e;
+    color: #fff;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.btn-save:hover {
+    border-color: #256f33;
+    background: #256f33;
+}
+
+.btn-save.is-saved {
+    border-color: #1f5f2b;
+    background: #1f5f2b;
+}
+
 .view-controls {
     grid-column: 2;
     display: flex;

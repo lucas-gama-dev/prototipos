@@ -7,3 +7,12 @@ export function clamp(value) {
 export function formatPercent(value) {
   return Number(value).toFixed(2).replace(/\.00$/, "");
 }
+
+export function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}

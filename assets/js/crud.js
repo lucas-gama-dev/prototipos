@@ -1,0 +1,846 @@
+import { defaultChecklist } from "./data/checklist.js";
+import { dom } from "./dom.js";
+import { escapeHtml } from "./utils.js";
+
+// CRUD de exemplo (independente do mapeamento). Duas entidades: Itens de
+// checklist e Marcas/Modelos (cada marca traz seus tipos embutidos). Um item
+// aplica-se a um ou mais tipos. Persistido em localStorage.
+
+const KEYS = {
+  marcas: "crud_marcas",
+  itens: "crud_itens",
+  // Ordem dos itens por tipo: { [tipoId]: [itemId, ...] }
+  ordens: "crud_ordens",
+};
+
+// Versao dos dados-semente. Ao incrementar, os seeds sao reaplicados.
+const SEED_VERSION = 6;
+const SEED_VERSION_KEY = "crud_seed_version";
+
+function read(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function write(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Ignora falhas de storage (modo privado, cota, etc.).
+  }
+}
+
+// Marcas/modelos com seus tipos embutidos. Ids de tipo sao globais (referenciados
+// pelas aplicacoes dos itens), por isso nao se repetem entre marcas.
+function seedMarcas() {
+  return [
+    {
+      id: 1,
+      nome: "Mercedes Sprinter",
+      tipos: [
+        { id: 1, sigla: "USB", nome: "Unidade de Suporte Básico" },
+        { id: 2, sigla: "USA", nome: "Unidade de Suporte Avançado" },
+        { id: 3, sigla: "USI", nome: "Unidade de Suporte Intermediário" },
+      ],
+    },
+    {
+      id: 2,
+      nome: "Renault Master",
+      tipos: [
+        { id: 4, sigla: "USB", nome: "Unidade de Suporte Básico" },
+        { id: 5, sigla: "USA", nome: "Unidade de Suporte Avançado" },
+        { id: 6, sigla: "USI", nome: "Unidade de Suporte Intermediário" },
+      ],
+    },
+    {
+      id: 3,
+      nome: "Toyota SW4",
+      tipos: [
+        { id: 7, sigla: "VIR", nome: "Viatura de Intervenção Rápida" },
+        { id: 8, sigla: "VIM", nome: "Viatura de Intervenção Média" },
+      ],
+    },
+    {
+      id: 4,
+      nome: "Yamaha Versys",
+      tipos: [{ id: 9, sigla: "MOTO", nome: "Motolância" }],
+    },
+  ];
+}
+
+// Os 34 itens conhecidos, cadastrados UMA vez. Cada item (peça física) existe na
+// viatura em todas as configurações, então aplica-se a TODOS os tipos da Mercedes
+// Sprinter (USB/USA/USI) e da Renault Master (USB/USA/USI).
+function seedItens() {
+  const tipos = [1, 2, 3, 4, 5, 6]; // Mercedes USB/USA/USI + Renault USB/USA/USI
+
+  return defaultChecklist.map((point, index) => ({
+    id: index + 1,
+    descricao: point.descricao,
+    aplicacoes: tipos.slice(),
+  }));
+}
+
+const store = {
+  marcas: read(KEYS.marcas) || seedMarcas(),
+  itens: read(KEYS.itens) || seedItens(),
+  ordens: read(KEYS.ordens) || {},
+};
+
+// Aplica os seeds no primeiro uso e os reaplica quando SEED_VERSION muda.
+if (Number(read(SEED_VERSION_KEY)) !== SEED_VERSION) {
+  store.marcas = seedMarcas();
+  store.itens = seedItens();
+  write(KEYS.marcas, store.marcas);
+  write(KEYS.itens, store.itens);
+  write(SEED_VERSION_KEY, SEED_VERSION);
+}
+
+function nextId(list) {
+  return list.reduce((max, item) => Math.max(max, item.id), 0) + 1;
+}
+
+function persist(entity) {
+  write(KEYS[entity], store[entity]);
+}
+
+function save(entity, data) {
+  const list = store[entity];
+
+  if (data.id != null) {
+    const index = list.findIndex((item) => item.id === data.id);
+    if (index >= 0) list[index] = { ...list[index], ...data };
+  } else {
+    list.push({ ...data, id: nextId(list) });
+  }
+
+  persist(entity);
+}
+
+function remove(entity, id) {
+  store[entity] = store[entity].filter((item) => item.id !== id);
+  persist(entity);
+}
+
+// ---- Estado da UI ----
+
+const ui = {
+  tab: "itens",
+  form: null, // { entity, mode, data } | null
+  ordem: { marcaId: null }, // contexto da aba Ordem (por marca/modelo)
+};
+
+function marcaNome(id) {
+  const marca = store.marcas.find((item) => item.id === id);
+  return marca ? marca.nome : "—";
+}
+
+// Todos os tipos (achatados), cada um com a marca dona.
+function allTipos() {
+  return store.marcas.flatMap((marca) =>
+    (marca.tipos || []).map((tipo) => ({ ...tipo, marcaId: marca.id })),
+  );
+}
+
+function findTipo(id) {
+  for (const marca of store.marcas) {
+    const tipo = (marca.tipos || []).find((t) => t.id === id);
+    if (tipo) return { ...tipo, marcaId: marca.id };
+  }
+  return null;
+}
+
+function tipoSigla(id) {
+  const tipo = findTipo(id);
+  return tipo ? tipo.sigla : "—";
+}
+
+function tipoMarcaId(id) {
+  const tipo = findTipo(id);
+  return tipo ? tipo.marcaId : null;
+}
+
+function tiposDaMarca(marcaId) {
+  const marca = store.marcas.find((m) => m.id === marcaId);
+  return marca ? marca.tipos || [] : [];
+}
+
+// Badges com as siglas dos tipos de uma marca/modelo (ex.: [USB] [USA] [USI]).
+function tiposBadges(marcaId) {
+  const tipos = tiposDaMarca(marcaId);
+  if (!tipos.length) return '<span class="crud-null">—</span>';
+  return `<div class="crud-apl-tags">${tipos
+    .map((t) => `<span class="crud-badge">${escapeHtml(t.sigla)}</span>`)
+    .join(" ")}</div>`;
+}
+
+// Itens que aplicam um tipo (id de tipo presente na lista de aplicacoes).
+function itensComTipo(tipoId) {
+  return store.itens.filter((item) => (item.aplicacoes || []).includes(tipoId))
+    .length;
+}
+
+// Itens que aplicam algum tipo de uma marca/modelo.
+function itensComMarca(marcaId) {
+  return store.itens.filter((item) =>
+    (item.aplicacoes || []).some((tipoId) => tipoMarcaId(tipoId) === marcaId),
+  ).length;
+}
+
+// Resumo das aplicacoes de um item, agrupado por marca (derivada do tipo).
+function aplicacoesResumo(item) {
+  const aplicacoes = item.aplicacoes || [];
+  if (!aplicacoes.length) return '<span class="crud-null">—</span>';
+
+  const porMarca = new Map();
+  aplicacoes.forEach((tipoId) => {
+    const nome = marcaNome(tipoMarcaId(tipoId));
+    if (!porMarca.has(nome)) porMarca.set(nome, []);
+    porMarca.get(nome).push(tipoSigla(tipoId));
+  });
+
+  return `<div class="crud-apl-resumo">${[...porMarca.entries()]
+    .map(
+      ([nome, tipos]) =>
+        `<div><span class="crud-apl-marca">${escapeHtml(nome)}</span> ${tipos
+          .map((t) => `<span class="crud-badge">${escapeHtml(t)}</span>`)
+          .join(" ")}</div>`,
+    )
+    .join("")}</div>`;
+}
+
+function rowActions(entity, id) {
+  return `
+    <td class="crud-actions">
+      <button type="button" class="crud-icon-btn" data-edit="${entity}" data-id="${id}" title="Editar">
+        <i class="fa-solid fa-pen"></i>
+      </button>
+      <button type="button" class="crud-icon-btn is-danger" data-del="${entity}" data-id="${id}" title="Excluir">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
+    </td>`;
+}
+
+function formActions(editing) {
+  return `
+    <div class="crud-form-actions">
+      <button type="submit" class="crud-btn-save">
+        <i class="fa-solid fa-check"></i> ${editing ? "Salvar" : "Adicionar"}
+      </button>
+      <button type="button" class="crud-btn-cancel" data-crud-cancel>
+        <i class="fa-solid fa-xmark"></i> Cancelar
+      </button>
+    </div>`;
+}
+
+function emptyRow(colspan) {
+  return `<tr><td colspan="${colspan}" class="crud-empty">Nenhum registro cadastrado.</td></tr>`;
+}
+
+// ---- Views por aba ----
+
+function itensForm() {
+  const data = ui.form ? ui.form.data : {};
+  const aplicacoes = data.aplicacoes || []; // ids de tipo
+  const editing = ui.form && ui.form.mode === "edit";
+
+  const marcaOpts = store.marcas
+    .map((m) => `<option value="${m.id}">${escapeHtml(m.nome)}</option>`)
+    .join("");
+
+  // Agrupa os tipos aplicados por marca (a marca já traz seus tipos).
+  const porMarca = new Map();
+  aplicacoes.forEach((tipoId) => {
+    const marcaId = tipoMarcaId(tipoId);
+    if (marcaId == null) return;
+    if (!porMarca.has(marcaId)) porMarca.set(marcaId, []);
+    porMarca.get(marcaId).push(tipoId);
+  });
+
+  const aplList = porMarca.size
+    ? `<ul class="crud-apl-list">${[...porMarca.entries()]
+        .map(
+          ([marcaId, tipoIds]) => `
+          <li class="crud-apl-item">
+            <span><strong>${escapeHtml(marcaNome(marcaId))}</strong> ${tipoIds
+              .map((t) => `<span class="crud-badge">${escapeHtml(tipoSigla(t))}</span>`)
+              .join(" ")}</span>
+            <button type="button" class="crud-icon-btn is-danger" data-apl-del="${marcaId}" title="Remover">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </li>`,
+        )
+        .join("")}</ul>`
+    : `<p class="crud-apl-empty">Adicione uma ou mais marcas/modelos.</p>`;
+
+  return `
+    <form class="crud-form" data-entity="itens" data-id="${data.id || ""}">
+      <div class="crud-field crud-field-wide">
+        <label for="crudDescricao">Descrição</label>
+        <input id="crudDescricao" type="text" value="${escapeHtml(data.descricao || "")}" placeholder="Ex.: Asa Dianteira" autocomplete="off" />
+      </div>
+
+      <div class="crud-apl">
+        <span class="crud-apl-label">Aplica-se a (marca/modelo)</span>
+        <div class="crud-apl-add">
+          <select id="crudAplMarca">${marcaOpts || '<option value="">—</option>'}</select>
+          <button type="button" class="crud-btn-new" data-apl-add>
+            <i class="fa-solid fa-plus"></i> Adicionar
+          </button>
+        </div>
+        ${aplList}
+      </div>
+
+      ${formActions(editing)}
+    </form>`;
+}
+
+function viewItens() {
+  const rows = store.itens
+    .map(
+      (it) => `
+      <tr>
+        <td class="crud-num">${it.id}</td>
+        <td>${escapeHtml(it.descricao)}</td>
+        <td>${aplicacoesResumo(it)}</td>
+        ${rowActions("itens", it.id)}
+      </tr>`,
+    )
+    .join("");
+
+  return `<table class="crud-table">
+      <thead><tr>
+        <th>#</th>
+        <th><i class="fa-solid fa-align-left"></i> Descrição</th>
+        <th><i class="fa-solid fa-link"></i> Aplica-se a</th>
+        <th></th>
+      </tr></thead>
+      <tbody>${rows || emptyRow(4)}</tbody>
+    </table>`;
+}
+
+function marcasForm() {
+  const data = ui.form ? ui.form.data : {};
+  const tipos = data.tipos || [];
+  const editing = ui.form && ui.form.mode === "edit";
+
+  const tipoRows = tipos.length
+    ? `<div class="crud-tipo-list">${tipos
+        .map(
+          (t, index) => `
+          <div class="crud-tipo-row" data-tipo-id="${t.id != null ? t.id : ""}">
+            <input class="crud-tipo-sigla" type="text" value="${escapeHtml(t.sigla || "")}" placeholder="Sigla" maxlength="10" autocomplete="off" />
+            <input class="crud-tipo-nome" type="text" value="${escapeHtml(t.nome || "")}" placeholder="Descrição" autocomplete="off" />
+            <button type="button" class="crud-icon-btn is-danger" data-tipo-del="${index}" title="Remover">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>`,
+        )
+        .join("")}</div>`
+    : `<p class="crud-apl-empty">Nenhum tipo. Adicione os tipos desta marca/modelo.</p>`;
+
+  return `
+    <form class="crud-form" data-entity="marcas" data-id="${data.id || ""}">
+      <div class="crud-field crud-field-wide">
+        <label for="crudNome">Marca/Modelo</label>
+        <input id="crudNome" type="text" value="${escapeHtml(data.nome || "")}" placeholder="Ex.: Mercedes Sprinter" autocomplete="off" />
+      </div>
+
+      <div class="crud-apl">
+        <span class="crud-apl-label">Tipos desta marca/modelo</span>
+        ${tipoRows}
+        <button type="button" class="crud-btn-new crud-btn-add-tipo" data-tipo-add>
+          <i class="fa-solid fa-plus"></i> Adicionar tipo
+        </button>
+      </div>
+
+      ${formActions(editing)}
+    </form>`;
+}
+
+function viewMarcas() {
+  const rows = store.marcas
+    .map(
+      (m) => `
+      <tr>
+        <td class="crud-num">${m.id}</td>
+        <td>${escapeHtml(m.nome)}</td>
+        <td>${tiposBadges(m.id)}</td>
+        ${rowActions("marcas", m.id)}
+      </tr>`,
+    )
+    .join("");
+
+  return `<table class="crud-table">
+      <thead><tr>
+        <th>#</th>
+        <th><i class="fa-solid fa-car-side"></i> Marca/Modelo</th>
+        <th><i class="fa-solid fa-tags"></i> Tipos</th>
+        <th></th>
+      </tr></thead>
+      <tbody>${rows || emptyRow(4)}</tbody>
+    </table>`;
+}
+
+// ---- Aba Ordem (arrastar e soltar, por marca/modelo + tipo) ----
+
+// Itens que se aplicam a uma marca/modelo (a qualquer tipo dela).
+function itensDaMarca(marcaId) {
+  const tipoIds = tiposDaMarca(marcaId).map((t) => t.id);
+  return store.itens.filter((item) =>
+    (item.aplicacoes || []).some((tipoId) => tipoIds.includes(tipoId)),
+  );
+}
+
+// Itens da marca na ordem salva (os sem ordem definida vao para o fim).
+// A ordem é por marca: vale para todos os tipos dela (USB/USA/USI são vinculados).
+function itensOrdenados(marcaId) {
+  const ordem = store.ordens[marcaId] || [];
+  const pos = new Map(ordem.map((id, index) => [id, index]));
+  return itensDaMarca(marcaId)
+    .slice()
+    .sort((a, b) => {
+      const pa = pos.has(a.id) ? pos.get(a.id) : Infinity;
+      const pb = pos.has(b.id) ? pos.get(b.id) : Infinity;
+      return pa - pb || a.id - b.id;
+    });
+}
+
+// Garante uma marca/modelo válida selecionada.
+function ensureOrdemCtx() {
+  if (
+    ui.ordem.marcaId == null ||
+    !store.marcas.some((m) => m.id === ui.ordem.marcaId)
+  ) {
+    ui.ordem.marcaId = store.marcas[0] ? store.marcas[0].id : null;
+  }
+}
+
+function viewOrdem() {
+  ensureOrdemCtx();
+  const ctx = ui.ordem;
+
+  const marcaOpts = store.marcas
+    .map(
+      (m) =>
+        `<option value="${m.id}" ${m.id === ctx.marcaId ? "selected" : ""}>${escapeHtml(m.nome)}</option>`,
+    )
+    .join("");
+  // Tipos vinculados da marca, combinados (ex.: "USB/USA/USI").
+  const tiposCombinados =
+    tiposDaMarca(ctx.marcaId)
+      .map((t) => escapeHtml(t.sigla))
+      .join("/") || "—";
+
+  const items = ctx.marcaId != null ? itensOrdenados(ctx.marcaId) : [];
+  const rows = items
+    .map(
+      (it, index) => `
+      <li class="crud-ordem-item" draggable="true" data-item-id="${it.id}">
+        <span class="crud-ordem-num">${index + 1}</span>
+        <i class="fa-solid fa-grip-vertical crud-ordem-handle"></i>
+        <span class="crud-ordem-desc">${escapeHtml(it.descricao)}</span>
+      </li>`,
+    )
+    .join("");
+
+  return `
+    <div class="crud-ordem-ctx">
+      <select id="crudOrdemMarca">${marcaOpts || '<option value="">—</option>'}</select>
+      <div class="crud-ordem-tipos" title="Tipos desta marca/modelo (mesma ordem para todos)">
+        ${tiposCombinados}
+      </div>
+    </div>
+    <ul class="crud-ordem-list" id="crudOrdemList">
+      ${rows || '<li class="crud-empty">Nenhum item aplica-se a esta marca/modelo.</li>'}
+    </ul>
+    <p class="crud-ordem-hint" id="crudOrdemStatus">
+      Arraste pelo <i class="fa-solid fa-grip-vertical"></i> para reordenar — salva automaticamente.
+    </p>`;
+}
+
+function renumberOrdem(list) {
+  [...list.querySelectorAll(".crud-ordem-item")].forEach((li, index) => {
+    const num = li.querySelector(".crud-ordem-num");
+    if (num) num.textContent = index + 1;
+  });
+}
+
+function saveOrdemFromDom() {
+  const list = document.querySelector("#crudOrdemList");
+  if (!list || ui.ordem.marcaId == null) return;
+
+  store.ordens[ui.ordem.marcaId] = [
+    ...list.querySelectorAll(".crud-ordem-item"),
+  ].map((li) => Number(li.dataset.itemId));
+  persist("ordens");
+
+  const status = document.querySelector("#crudOrdemStatus");
+  if (status) {
+    status.innerHTML = '<i class="fa-solid fa-check"></i> Ordem salva.';
+    status.classList.add("is-saved");
+  }
+}
+
+const VIEWS = { itens: viewItens, marcas: viewMarcas, ordem: viewOrdem };
+
+function render() {
+  dom.crudBody.innerHTML = VIEWS[ui.tab]();
+}
+
+function setActiveTab() {
+  dom.crudTabs.querySelectorAll(".crud-tab").forEach((tab) => {
+    tab.classList.toggle("is-active", tab.dataset.tab === ui.tab);
+  });
+  // A aba Ordem não cria registros: esconde o botão "Novo".
+  dom.btnCrudNew.style.display = ui.tab === "ordem" ? "none" : "";
+}
+
+// ---- Modal de formulário (Novo / Editar) ----
+
+const FORMS = { itens: itensForm, marcas: marcasForm };
+
+const FORM_LABELS = {
+  itens: { icon: "fa-list-check", new: "Novo item", edit: "Editar item" },
+  marcas: {
+    icon: "fa-car-side",
+    new: "Nova marca/modelo",
+    edit: "Editar marca/modelo",
+  },
+};
+
+function openFormModal() {
+  const { entity, mode } = ui.form;
+  const label = FORM_LABELS[entity];
+
+  dom.crudFormTitle.innerHTML = `<i class="fa-solid ${label.icon}"></i> ${
+    mode === "edit" ? label.edit : label.new
+  }`;
+  dom.crudFormBody.innerHTML = FORMS[entity]();
+  dom.crudFormModal.hidden = false;
+
+  const first = dom.crudFormBody.querySelector("input, select");
+  if (first) first.focus();
+}
+
+function closeFormModal() {
+  dom.crudFormModal.hidden = true;
+  ui.form = null;
+}
+
+// Re-renderiza apenas o corpo do formulário (ex.: ao adicionar/remover linha).
+function rerenderForm() {
+  dom.crudFormBody.innerHTML = FORMS[ui.form.entity]();
+}
+
+// Preserva a descrição digitada (item) antes de re-renderizar o formulário.
+function syncDescricaoToForm() {
+  const el = document.querySelector("#crudDescricao");
+  if (el) ui.form.data.descricao = el.value;
+}
+
+// Preserva nome + linhas de tipo (marca) antes de re-renderizar/salvar.
+function syncMarcaForm() {
+  const nomeEl = document.querySelector("#crudNome");
+  if (nomeEl) ui.form.data.nome = nomeEl.value;
+
+  ui.form.data.tipos = [...document.querySelectorAll(".crud-tipo-row")].map(
+    (row) => ({
+      id: row.dataset.tipoId ? Number(row.dataset.tipoId) : null,
+      sigla: row.querySelector(".crud-tipo-sigla").value.trim(),
+      nome: row.querySelector(".crud-tipo-nome").value.trim(),
+    }),
+  );
+}
+
+// ---- Leitura/validação de formulário ----
+
+function fieldValue(selector) {
+  const el = document.querySelector(selector);
+  return el ? el.value.trim() : "";
+}
+
+function invalidate(selector) {
+  const el = document.querySelector(selector);
+  if (el) {
+    el.classList.add("is-invalid");
+    el.focus();
+  }
+}
+
+function readForm(entity, id) {
+  if (entity === "itens") {
+    const descricao = fieldValue("#crudDescricao");
+    if (!descricao) {
+      invalidate("#crudDescricao");
+      return null;
+    }
+    const aplicacoes = (ui.form.data.aplicacoes || []).slice();
+    if (!aplicacoes.length) {
+      const block = document.querySelector(".crud-apl");
+      if (block) block.classList.add("is-invalid");
+      return null;
+    }
+    return { id, descricao, aplicacoes };
+  }
+
+  if (entity === "marcas") {
+    syncMarcaForm();
+    const nome = (ui.form.data.nome || "").trim();
+    if (!nome) {
+      invalidate("#crudNome");
+      return null;
+    }
+
+    const tipos = ui.form.data.tipos || [];
+    const semSigla = tipos.findIndex((t) => !t.sigla);
+    if (semSigla >= 0) {
+      const inputs = document.querySelectorAll(
+        ".crud-tipo-row .crud-tipo-sigla",
+      );
+      if (inputs[semSigla]) {
+        inputs[semSigla].classList.add("is-invalid");
+        inputs[semSigla].focus();
+      }
+      return null;
+    }
+
+    // Mantem os ids existentes (para nao quebrar as aplicacoes dos itens) e
+    // atribui ids globais novos aos tipos recem-adicionados.
+    let counter =
+      Math.max(
+        0,
+        ...allTipos().map((t) => t.id),
+        ...tipos.filter((t) => t.id != null).map((t) => t.id),
+      ) + 1;
+    const tiposFinal = tipos.map((t) =>
+      t.id != null
+        ? { id: t.id, sigla: t.sigla, nome: t.nome }
+        : { id: counter++, sigla: t.sigla, nome: t.nome },
+    );
+
+    return { id, nome, tipos: tiposFinal };
+  }
+
+  return null;
+}
+
+// ---- Abrir / fechar ----
+
+function openModal() {
+  ui.form = null;
+  setActiveTab();
+  render();
+  dom.crudModal.hidden = false;
+}
+
+function closeModal() {
+  dom.crudModal.hidden = true;
+}
+
+let initialized = false;
+
+export function initCrud() {
+  if (initialized) return;
+  initialized = true;
+
+  dom.btnOpenCrud.addEventListener("click", openModal);
+  dom.btnCloseCrud.addEventListener("click", closeModal);
+
+  dom.crudModal.addEventListener("click", (event) => {
+    if (event.target === dom.crudModal) closeModal();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (!dom.crudFormModal.hidden) closeFormModal();
+    else if (!dom.crudModal.hidden) closeModal();
+  });
+
+  dom.crudTabs.addEventListener("click", (event) => {
+    // Botão "Novo" (na barra de abas): cria um registro da aba atual.
+    if (event.target.closest(".crud-btn-new")) {
+      if (ui.tab === "ordem") return; // a aba Ordem não cria registros
+      ui.form = { entity: ui.tab, mode: "new", data: {} };
+      openFormModal();
+      return;
+    }
+
+    const tab = event.target.closest(".crud-tab");
+    if (!tab) return;
+    ui.tab = tab.dataset.tab;
+    ui.form = null;
+    setActiveTab();
+    render();
+  });
+
+  // Aba Ordem: troca de contexto (marca/modelo).
+  dom.crudBody.addEventListener("change", (event) => {
+    if (event.target.id === "crudOrdemMarca") {
+      ui.ordem.marcaId = Number(event.target.value) || null;
+      render();
+    }
+  });
+
+  // Aba Ordem: arrastar e soltar para reordenar (salva automaticamente).
+  let dragItem = null;
+
+  dom.crudBody.addEventListener("dragstart", (event) => {
+    const li = event.target.closest(".crud-ordem-item");
+    if (!li) return;
+    dragItem = li;
+    li.classList.add("is-dragging");
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = "move";
+      try {
+        event.dataTransfer.setData("text/plain", li.dataset.itemId);
+      } catch {
+        // alguns navegadores limitam setData fora de gestos reais
+      }
+    }
+  });
+
+  dom.crudBody.addEventListener("dragover", (event) => {
+    if (!dragItem) return;
+    const list = event.target.closest("#crudOrdemList");
+    if (!list) return;
+    event.preventDefault();
+
+    const li = event.target.closest(".crud-ordem-item");
+    if (!li || li === dragItem) return;
+
+    const rect = li.getBoundingClientRect();
+    const depois = event.clientY - rect.top > rect.height / 2;
+    list.insertBefore(dragItem, depois ? li.nextSibling : li);
+    renumberOrdem(list);
+  });
+
+  dom.crudBody.addEventListener("drop", (event) => {
+    if (dragItem && event.target.closest("#crudOrdemList")) event.preventDefault();
+  });
+
+  dom.crudBody.addEventListener("dragend", () => {
+    if (!dragItem) return;
+    dragItem.classList.remove("is-dragging");
+    dragItem = null;
+    saveOrdemFromDom();
+  });
+
+  dom.crudBody.addEventListener("click", (event) => {
+    const editBtn = event.target.closest("[data-edit]");
+    if (editBtn) {
+      const entity = editBtn.dataset.edit;
+      const id = Number(editBtn.dataset.id);
+      const record = store[entity].find((item) => item.id === id);
+      if (record) {
+        const data = { ...record };
+        if (data.aplicacoes) data.aplicacoes = data.aplicacoes.slice();
+        if (data.tipos) data.tipos = data.tipos.map((t) => ({ ...t }));
+        ui.form = { entity, mode: "edit", data };
+        openFormModal();
+      }
+      return;
+    }
+
+    const delBtn = event.target.closest("[data-del]");
+    if (delBtn) {
+      const entity = delBtn.dataset.del;
+      const id = Number(delBtn.dataset.id);
+
+      // Integridade: nao excluir marca/modelo que esteja aplicada por itens.
+      if (entity === "marcas" && itensComMarca(id) > 0) {
+        window.alert(
+          "Não é possível excluir: há itens vinculados a esta marca/modelo.",
+        );
+        return;
+      }
+
+      if (window.confirm("Excluir este registro?")) {
+        remove(entity, id);
+        render();
+      }
+      return;
+    }
+  });
+
+  // Modal de formulário (Novo / Editar)
+  dom.btnCloseCrudForm.addEventListener("click", closeFormModal);
+
+  dom.crudFormModal.addEventListener("click", (event) => {
+    if (event.target === dom.crudFormModal) closeFormModal();
+  });
+
+  dom.crudFormBody.addEventListener("click", (event) => {
+    if (event.target.closest("[data-crud-cancel]")) {
+      closeFormModal();
+      return;
+    }
+
+    // --- Item: aplicações por marca (a marca já traz seus tipos) ---
+    if (event.target.closest("[data-apl-add]")) {
+      syncDescricaoToForm();
+      const marcaSel = document.querySelector("#crudAplMarca");
+      const marcaId = Number(marcaSel ? marcaSel.value : "") || null;
+      if (marcaId) {
+        const lista = ui.form.data.aplicacoes || (ui.form.data.aplicacoes = []);
+        tiposDaMarca(marcaId).forEach((t) => {
+          if (!lista.includes(t.id)) lista.push(t.id);
+        });
+        rerenderForm();
+      }
+      return;
+    }
+
+    const aplDel = event.target.closest("[data-apl-del]");
+    if (aplDel) {
+      syncDescricaoToForm();
+      const marcaId = Number(aplDel.dataset.aplDel);
+      ui.form.data.aplicacoes = (ui.form.data.aplicacoes || []).filter(
+        (tipoId) => tipoMarcaId(tipoId) !== marcaId,
+      );
+      rerenderForm();
+      return;
+    }
+
+    // --- Marca/Modelo: tipos embutidos ---
+    if (event.target.closest("[data-tipo-add]")) {
+      syncMarcaForm();
+      const lista = ui.form.data.tipos || (ui.form.data.tipos = []);
+      lista.push({ id: null, sigla: "", nome: "" });
+      rerenderForm();
+      return;
+    }
+
+    const tipoDel = event.target.closest("[data-tipo-del]");
+    if (tipoDel) {
+      syncMarcaForm();
+      const index = Number(tipoDel.dataset.tipoDel);
+      const tipo = ui.form.data.tipos[index];
+      if (tipo && tipo.id != null && itensComTipo(tipo.id) > 0) {
+        window.alert("Não é possível remover: há itens vinculados a este tipo.");
+        return;
+      }
+      ui.form.data.tipos.splice(index, 1);
+      rerenderForm();
+    }
+  });
+
+  dom.crudFormBody.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const form = event.target.closest(".crud-form");
+    if (!form) return;
+
+    const entity = form.dataset.entity;
+    const id = form.dataset.id ? Number(form.dataset.id) : null;
+    const data = readForm(entity, id);
+    if (!data) return;
+
+    save(entity, data);
+    closeFormModal();
+    render();
+  });
+}

@@ -17,6 +17,9 @@
                 <div class="title-block">
                     <h1><i class="fa-solid fa-map-location-dot"></i> Mapeamento Cartesiano (X/Y)</h1>
                     <span class="badge badge-prototype">PROTÓTIPO</span>
+                    <button id="btnOpenCrud" class="btn-crud" type="button">
+                        <i class="fa-solid fa-table-list"></i> CRUD relacionados
+                    </button>
                 </div>
                 <div class="actions">
                     <label class="vehicle-field" for="typeSelect">
@@ -26,6 +29,9 @@
                         >
                         <select id="typeSelect"></select>
                     </label>
+                    <button id="btnSave" class="btn-save" type="button">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar
+                    </button>
                 </div>
             </header>
 
@@ -115,14 +121,25 @@
                         <span id="count" class="badge"></span>
                     </div>
 
+                    <div
+                        id="progress"
+                        class="progress"
+                        role="progressbar"
+                        aria-label="Progresso do checklist"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                    >
+                        <div id="progressBar" class="progress-bar"></div>
+                    </div>
+
                     <div class="table-wrap">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>N&ordm;</th>
-                                    <th>Descri&ccedil;&atilde;o</th>
-                                    <th>X (%)</th>
-                                    <th>Y (%)</th>
+                                    <th><i class="fa-solid fa-list-ol"></i> N&ordm;</th>
+                                    <th><i class="fa-solid fa-align-left"></i> Descri&ccedil;&atilde;o</th>
+                                    <th><i class="fa-solid fa-arrows-left-right"></i> X (%)</th>
+                                    <th><i class="fa-solid fa-arrows-up-down"></i> Y (%)</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -131,24 +148,90 @@
                     </div>
 
                     <button id="btnOpenJson" class="json-trigger" type="button">
-                        <i class="fa-solid fa-code"></i> JSON dos pontos
+                        <i class="fa-solid fa-database"></i> Tabela no banco (MySQL)
                     </button>
 
-                    <!-- Modal JSON -->
+                    <!-- Modal: simulacao de armazenamento em banco (MySQL) -->
                     <div id="jsonModal" class="modal-overlay" hidden>
-                        <div class="modal-box">
+                        <div class="modal-box modal-box-db">
                             <div class="modal-header">
-                                <h3><i class="fa-solid fa-code"></i> JSON dos pontos</h3>
+                                <h3>
+                                    <i class="fa-solid fa-database"></i>
+                                    Simula&ccedil;&atilde;o de armazenamento (MySQL)
+                                </h3>
                                 <div class="modal-actions">
-                                    <button id="btnCopyJson" class="modal-copy" type="button" title="Copiar JSON">
-                                        <i class="fa-regular fa-copy"></i> Copiar
+                                    <button id="btnCopyJson" class="modal-copy" type="button" title="Copiar SQL">
+                                        <i class="fa-regular fa-copy"></i> Copiar SQL
                                     </button>
                                     <button id="btnCloseJson" class="modal-close" type="button" aria-label="Fechar" title="Fechar">
                                         <i class="fa-solid fa-xmark"></i>
                                     </button>
                                 </div>
                             </div>
-                            <pre id="jsonOutput"></pre>
+
+                            <div class="db-view">
+                                <div class="db-toolbar">
+                                    <span class="db-table-name"
+                                        >`samu`.`checklist_pontos_viatura`</span
+                                    >
+                                    <span class="db-chip">MySQL 8.0</span>
+                                </div>
+                                <details class="db-ddl">
+                                    <summary>
+                                        <i class="fa-solid fa-code"></i> CREATE TABLE
+                                    </summary>
+                                    <pre id="dbDdl"></pre>
+                                </details>
+                                <div class="db-grid-scroll">
+                                    <table id="dbView" class="db-grid"></table>
+                                </div>
+                                <div id="dbStatusbar" class="db-statusbar"></div>
+                            </div>
+
+                            <pre id="jsonOutput" hidden></pre>
+                        </div>
+                    </div>
+
+                    <!-- Modal: CRUD de itens, marcas/modelos e tipos -->
+                    <div id="crudModal" class="modal-overlay" hidden>
+                        <div class="modal-box modal-box-crud">
+                            <div class="modal-header">
+                                <h3>
+                                    <i class="fa-solid fa-table-list"></i>
+                                    Cadastros (CRUD)
+                                </h3>
+                                <button id="btnCloseCrud" class="modal-close" type="button" aria-label="Fechar" title="Fechar">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div id="crudTabs" class="crud-tabs" role="tablist">
+                                <button class="crud-tab is-active" type="button" data-tab="itens">
+                                    <i class="fa-solid fa-list-check"></i> Itens
+                                </button>
+                                <button class="crud-tab" type="button" data-tab="marcas">
+                                    <i class="fa-solid fa-car-side"></i> Marcas/Modelos
+                                </button>
+                                <button class="crud-tab" type="button" data-tab="ordem">
+                                    <i class="fa-solid fa-arrow-down-1-9"></i> Ordem
+                                </button>
+                                <button id="btnCrudNew" class="crud-btn-new" type="button">
+                                    <i class="fa-solid fa-plus"></i> Novo
+                                </button>
+                            </div>
+                            <div id="crudBody" class="crud-body"></div>
+                        </div>
+                    </div>
+
+                    <!-- Modal de formulário (Novo / Editar) -->
+                    <div id="crudFormModal" class="modal-overlay modal-overlay-nested" hidden>
+                        <div class="modal-box modal-box-crud modal-box-crud-form">
+                            <div class="modal-header">
+                                <h3 id="crudFormTitle"></h3>
+                                <button id="btnCloseCrudForm" class="modal-close" type="button" aria-label="Fechar" title="Fechar">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div id="crudFormBody" class="crud-form-body"></div>
                         </div>
                     </div>
                 </aside>

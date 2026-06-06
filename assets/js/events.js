@@ -6,7 +6,13 @@ import {
   updateLiveCoords,
 } from "./actions.js";
 import { dom } from "./dom.js";
-import { render, renderJson, resetMapStructure } from "./render.js";
+import {
+  buildDbSql,
+  render,
+  renderDbView,
+  renderJson,
+  resetMapStructure,
+} from "./render.js";
 import { state } from "./state.js";
 import { formatPercent } from "./utils.js";
 
@@ -94,12 +100,13 @@ export function bindEvents() {
     }
 
     const mapEl = event.target.closest(".map");
-    if (!mapEl) return;
 
+    // Clique em qualquer parte de um quadro inativo torna-o ativo.
     if (index !== state.activeImageIndex) {
       state.activeImageIndex = index;
 
-      if (positionSelectedPoint(coordsFromEvent(event, mapEl))) {
+      // Se foi dentro do mapa e ha um ponto selecionado, posiciona-o ali.
+      if (mapEl && positionSelectedPoint(coordsFromEvent(event, mapEl))) {
         return;
       }
 
@@ -107,6 +114,9 @@ export function bindEvents() {
       render();
       return;
     }
+
+    // Quadro ja ativo: posicionar/atualizar coordenadas so faz sentido no mapa.
+    if (!mapEl) return;
 
     const coords = coordsFromEvent(event, mapEl);
 
@@ -136,8 +146,33 @@ export function bindEvents() {
     if (row) selectPoint(row.dataset.id);
   });
 
-  dom.btnOpenJson.addEventListener("click", () => {
+  dom.btnSave.addEventListener("click", () => {
     renderJson();
+
+    const blob = new Blob([dom.jsonOutput.textContent], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `mapeamento-${state.selectedTypeId || "pontos"}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    const button = dom.btnSave;
+    button.classList.add("is-saved");
+    button.innerHTML = '<i class="fa-solid fa-check"></i> Salvo!';
+
+    setTimeout(() => {
+      button.classList.remove("is-saved");
+      button.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
+    }, 2000);
+  });
+
+  dom.btnOpenJson.addEventListener("click", () => {
+    renderDbView();
     dom.jsonModal.hidden = false;
   });
 
@@ -158,14 +193,14 @@ export function bindEvents() {
   });
 
   dom.btnCopyJson.addEventListener("click", () => {
-    navigator.clipboard.writeText(dom.jsonOutput.textContent).then(() => {
+    navigator.clipboard.writeText(buildDbSql()).then(() => {
       const button = dom.btnCopyJson;
       button.classList.add("is-copied");
       button.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
 
       setTimeout(() => {
         button.classList.remove("is-copied");
-        button.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar';
+        button.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar SQL';
       }, 2000);
     });
   });

@@ -1,0 +1,546 @@
+/* CRUD de exemplo (itens, marcas/modelos, tipos) em modal claro. */
+
+.btn-crud {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.btn-crud:hover {
+    border-color: #1b5288;
+    background: #1b5288;
+}
+
+/* Modal claro (sobrescreve o tema escuro do .modal-box) */
+.modal-box-crud {
+    max-width: 880px;
+    background: #fff;
+    color: var(--text);
+}
+
+.modal-box-crud .modal-header {
+    border-bottom: 1px solid var(--line);
+}
+
+.modal-box-crud .modal-header h3 {
+    color: var(--text);
+}
+
+.modal-box-crud .modal-close {
+    color: var(--muted);
+}
+
+.modal-box-crud .modal-close:hover {
+    background: #eef1f5;
+    color: var(--text);
+}
+
+/* Abas */
+.crud-tabs {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 4px;
+    padding: 10px 16px 0;
+    border-bottom: 1px solid var(--line);
+    background: #fafbfc;
+}
+
+.crud-tab {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 7px 7px 0 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.crud-tab:hover {
+    background: #eef1f5;
+}
+
+.crud-tab.is-active {
+    margin-bottom: -1px;
+    border-color: var(--line);
+    background: #fff;
+    color: var(--blue);
+}
+
+/* Botão "Novo" alinhado à direita na barra de abas */
+.crud-tabs .crud-btn-new {
+    margin-left: auto;
+    align-self: center;
+    margin-bottom: 6px;
+}
+
+/* Corpo */
+.crud-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    /* Sem padding no topo: o cabeçalho sticky gruda na borda do scroll, evitando
+       que o conteúdo das linhas apareça acima dele ao rolar. */
+    padding: 0 16px 16px;
+}
+
+.crud-btn-new {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    border-color: #2e8b3e;
+    background: #2e8b3e;
+    color: #fff;
+    font-weight: 700;
+}
+
+.crud-btn-new:hover {
+    border-color: #256f33;
+    background: #256f33;
+}
+
+/* Modal de formulário (Novo / Editar), sobreposto ao modal da lista */
+.modal-overlay-nested {
+    z-index: 1100;
+}
+
+.modal-box-crud-form {
+    max-width: 520px;
+}
+
+.crud-form-body {
+    max-height: calc(80vh - 64px);
+    overflow: auto;
+    padding: 18px;
+}
+
+/* No modal de formulário os campos ficam empilhados verticalmente */
+.crud-form-body .crud-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-bottom: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+.crud-form-body .crud-field {
+    flex: 1 1 auto;
+}
+
+.crud-form-body .crud-form-actions {
+    justify-content: flex-end;
+    margin-top: 2px;
+}
+
+/* Formulário */
+.crud-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--surface-strong);
+}
+
+.crud-field {
+    display: flex;
+    flex: 1 1 170px;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.crud-field-wide {
+    flex: 2 1 240px;
+}
+
+.crud-field label {
+    color: var(--muted);
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.crud-field input,
+.crud-field select {
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--text);
+}
+
+.crud-field input:focus,
+.crud-field select:focus {
+    border-color: var(--blue);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(34, 103, 168, 0.15);
+}
+
+.crud-field input.is-invalid,
+.crud-field select.is-invalid {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(226, 27, 27, 0.14);
+}
+
+.crud-form-actions {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.crud-btn-save {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #fff;
+    font-weight: 700;
+}
+
+.crud-btn-save:hover {
+    border-color: #1b5288;
+    background: #1b5288;
+}
+
+.crud-btn-cancel {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+/* Aplicações (vínculos marca/modelo + tipo) do item */
+.crud-apl {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0; /* permite encolher dentro do formulário (evita overflow) */
+}
+
+.crud-apl-label {
+    color: var(--muted);
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.crud-apl-add {
+    display: flex;
+    gap: 8px;
+    min-width: 0;
+}
+
+.crud-apl-add select {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--text);
+}
+
+.crud-apl-add .crud-btn-new {
+    flex: 0 0 auto;
+    min-height: 38px;
+}
+
+.crud-apl-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.crud-apl-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 6px 5px 12px;
+    border: 1px solid var(--line-soft);
+    border-radius: 7px;
+    background: #fff;
+    font-size: 0.86rem;
+}
+
+.crud-apl-empty {
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px dashed var(--line);
+    border-radius: 7px;
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.crud-apl.is-invalid .crud-apl-empty {
+    border-color: var(--red);
+    color: var(--red);
+}
+
+.crud-apl-resumo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.crud-apl-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* Tipos editáveis dentro do formulário de marca/modelo */
+.crud-tipo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.crud-tipo-row {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.crud-tipo-row input {
+    height: 36px;
+    min-width: 0;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--text);
+}
+
+.crud-tipo-row input:focus {
+    border-color: var(--blue);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(34, 103, 168, 0.15);
+}
+
+.crud-tipo-row input.is-invalid {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(226, 27, 27, 0.14);
+}
+
+.crud-btn-add-tipo {
+    align-self: flex-start;
+    min-height: 34px;
+}
+
+.crud-apl-marca {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.crud-null {
+    color: var(--muted);
+    font-style: italic;
+}
+
+/* Tabela */
+.crud-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+}
+
+.crud-table th,
+.crud-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line-soft);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.crud-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f3f5f8;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.crud-table thead th i {
+    margin-right: 6px;
+    opacity: 0.85;
+}
+
+.crud-table tbody tr:hover {
+    background: #f7f9fc;
+}
+
+.crud-num {
+    width: 1%;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.crud-badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: #eef4fb;
+    color: var(--blue);
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+
+.crud-empty {
+    padding: 24px;
+    color: var(--muted);
+    text-align: center;
+}
+
+.crud-actions {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.crud-icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    margin-left: 4px;
+    padding: 0;
+    color: var(--muted);
+}
+
+.crud-icon-btn:hover {
+    border-color: #aeb7c5;
+    color: var(--blue);
+}
+
+.crud-icon-btn.is-danger:hover {
+    border-color: #e7a3a3;
+    background: #fdf2f2;
+    color: var(--red);
+}
+
+/* Aba Ordem (arrastar e soltar) */
+.crud-ordem-ctx {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.crud-ordem-ctx select {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--text);
+}
+
+/* Tipos vinculados da marca, combinados (somente leitura). */
+.crud-ordem-tipos {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface-strong);
+    color: var(--blue);
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.crud-ordem-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.crud-ordem-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--line-soft);
+    border-radius: 8px;
+    background: #fff;
+    cursor: grab;
+    user-select: none;
+}
+
+.crud-ordem-item:hover {
+    background: #f7f9fc;
+}
+
+.crud-ordem-item.is-dragging {
+    border-color: var(--blue);
+    background: #eef4ff;
+    opacity: 0.6;
+}
+
+.crud-ordem-num {
+    display: inline-grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.crud-ordem-handle {
+    color: #aab1bd;
+}
+
+.crud-ordem-desc {
+    flex: 1;
+    min-width: 0;
+}
+
+.crud-ordem-hint {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+}
+
+.crud-ordem-hint.is-saved {
+    color: #2e8b3e;
+    font-weight: 700;
+}

@@ -17,6 +17,22 @@
     opacity: 0.9;
 }
 
+.progress {
+    height: 7px;
+    margin: 0 16px 12px;
+    border-radius: 999px;
+    background: var(--line-soft);
+    overflow: hidden;
+}
+
+.progress-bar {
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: #2e8b3e;
+    transition: width 0.3s ease;
+}
+
 /* Tabela unica com cabecalho fixo (sticky) dentro de um unico container de
    rolagem: a barra de rolagem vertical corre por toda a altura, ao lado do
    cabecalho (estilo planilha). */
@@ -62,6 +78,11 @@ thead th {
     font-size: 0.78rem;
     text-align: left;
     text-transform: uppercase;
+}
+
+.table-wrap thead th i {
+    margin-right: 6px;
+    opacity: 0.9;
 }
 
 th,
