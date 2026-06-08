@@ -28,4 +28,8 @@ export const dom = {
   crudFormTitle: document.querySelector("#crudFormTitle"),
   crudFormBody: document.querySelector("#crudFormBody"),
   btnCloseCrudForm: document.querySelector("#btnCloseCrudForm"),
+  crudAlertModal: document.querySelector("#crudAlertModal"),
+  crudAlertMsg: document.querySelector("#crudAlertMsg"),
+  btnCloseAlert: document.querySelector("#btnCloseAlert"),
+  btnAlertOk: document.querySelector("#btnAlertOk"),
 };

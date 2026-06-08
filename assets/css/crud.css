@@ -418,6 +418,19 @@
     text-align: center;
 }
 
+.crud-empty-ordem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 40px 24px;
+}
+
+.crud-empty-ordem i {
+    font-size: 2.2rem;
+    opacity: 0.35;
+}
+
 .crud-actions {
     width: 1%;
     text-align: right;
@@ -450,12 +463,27 @@
 .crud-ordem-ctx {
     display: flex;
     gap: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 6px;
+    padding-top: 4px;
+}
+
+.crud-ordem-field {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.crud-ordem-field label {
+    color: var(--muted);
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
 .crud-ordem-ctx select {
-    flex: 1;
-    min-width: 0;
+    width: 100%;
     height: 38px;
     padding: 0 10px;
     border: 1px solid var(--line);
@@ -467,8 +495,7 @@
 /* Tipos vinculados da marca, combinados (somente leitura). */
 .crud-ordem-tipos {
     display: flex;
-    flex: 1;
-    min-width: 0;
+    width: 100%;
     align-items: center;
     height: 38px;
     padding: 0 12px;
@@ -478,6 +505,7 @@
     color: var(--blue);
     font-weight: 800;
     letter-spacing: 0.3px;
+    box-sizing: border-box;
 }
 
 .crud-ordem-list {
@@ -535,7 +563,10 @@
 }
 
 .crud-ordem-hint {
-    margin: 14px 0 0;
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    border-radius: 7px;
+    background: #f0f6ff;
     color: var(--muted);
     font-size: 0.8rem;
 }
@@ -543,4 +574,32 @@
 .crud-ordem-hint.is-saved {
     color: #2e8b3e;
     font-weight: 700;
+}
+
+/* Modal de alerta */
+.modal-overlay-alert {
+    z-index: 1200;
+}
+
+.modal-box-alert {
+    max-width: 400px;
+}
+
+.modal-box-alert .modal-header h3 {
+    color: #c0392b;
+}
+
+.crud-alert-body {
+    padding: 20px 24px 24px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.crud-alert-body p {
+    margin: 0 0 18px;
+}
+
+.crud-alert-actions {
+    display: flex;
+    justify-content: flex-end;
 }

@@ -249,7 +249,11 @@ function itensForm() {
   const editing = ui.form && ui.form.mode === "edit";
 
   const marcaOpts = store.marcas
-    .map((m) => `<option value="${m.id}">${escapeHtml(m.nome)}</option>`)
+    .map((m) => {
+      const tipos = (m.tipos || []).map((t) => t.sigla).join("/");
+      const label = tipos ? `${m.nome} (${tipos})` : m.nome;
+      return `<option value="${m.id}">${escapeHtml(label)}</option>`;
+    })
     .join("");
 
   // Agrupa os tipos aplicados por marca (a marca já traz seus tipos).
@@ -285,7 +289,7 @@ function itensForm() {
       </div>
 
       <div class="crud-apl">
-        <span class="crud-apl-label">Aplica-se a (marca/modelo)</span>
+        <span class="crud-apl-label">Aplica-se a (marca/modelo/tipo)</span>
         <div class="crud-apl-add">
           <select id="crudAplMarca">${marcaOpts || '<option value="">—</option>'}</select>
           <button type="button" class="crud-btn-new" data-apl-add>
@@ -450,17 +454,23 @@ function viewOrdem() {
 
   return `
     <div class="crud-ordem-ctx">
-      <select id="crudOrdemMarca">${marcaOpts || '<option value="">—</option>'}</select>
-      <div class="crud-ordem-tipos" title="Tipos desta marca/modelo (mesma ordem para todos)">
-        ${tiposCombinados}
+      <div class="crud-ordem-field">
+        <label for="crudOrdemMarca">Marca/Modelo</label>
+        <select id="crudOrdemMarca">${marcaOpts || '<option value="">—</option>'}</select>
+      </div>
+      <div class="crud-ordem-field">
+        <label>Tipos</label>
+        <div class="crud-ordem-tipos" title="Tipos desta marca/modelo (mesma ordem para todos)">
+          ${tiposCombinados}
+        </div>
       </div>
     </div>
-    <ul class="crud-ordem-list" id="crudOrdemList">
-      ${rows || '<li class="crud-empty">Nenhum item aplica-se a esta marca/modelo.</li>'}
-    </ul>
     <p class="crud-ordem-hint" id="crudOrdemStatus">
-      Arraste pelo <i class="fa-solid fa-grip-vertical"></i> para reordenar — salva automaticamente.
-    </p>`;
+      <i class="fa-solid fa-lightbulb"></i> <strong>Dica:</strong> Arraste pelo <i class="fa-solid fa-grip-vertical"></i> para reordenar — salva automaticamente.
+    </p>
+    <ul class="crud-ordem-list" id="crudOrdemList">
+      ${rows || '<li class="crud-empty crud-empty-ordem"><i class="fa-solid fa-box-open"></i><span>Nenhum item aplica-se a esta marca/modelo.</span></li>'}
+    </ul>`;
 }
 
 function renumberOrdem(list) {
@@ -469,6 +479,8 @@ function renumberOrdem(list) {
     if (num) num.textContent = index + 1;
   });
 }
+
+let _ordemSavedTimer = null;
 
 function saveOrdemFromDom() {
   const list = document.querySelector("#crudOrdemList");
@@ -481,8 +493,15 @@ function saveOrdemFromDom() {
 
   const status = document.querySelector("#crudOrdemStatus");
   if (status) {
+    clearTimeout(_ordemSavedTimer);
     status.innerHTML = '<i class="fa-solid fa-check"></i> Ordem salva.';
     status.classList.add("is-saved");
+
+    _ordemSavedTimer = setTimeout(() => {
+      status.innerHTML =
+        '<i class="fa-solid fa-lightbulb"></i> <strong>Dica:</strong> Arraste pelo <i class="fa-solid fa-grip-vertical"></i> para reordenar — salva automaticamente.';
+      status.classList.remove("is-saved");
+    }, 2000);
   }
 }
 
@@ -572,11 +591,24 @@ function invalidate(selector) {
   }
 }
 
+function showAlert(msg) {
+  dom.crudAlertMsg.textContent = msg;
+  dom.crudAlertModal.hidden = false;
+}
+
 function readForm(entity, id) {
   if (entity === "itens") {
     const descricao = fieldValue("#crudDescricao");
     if (!descricao) {
       invalidate("#crudDescricao");
+      return null;
+    }
+    const duplicado = store.itens.find(
+      (it) => it.descricao.toLowerCase() === descricao.toLowerCase() && it.id !== id,
+    );
+    if (duplicado) {
+      invalidate("#crudDescricao");
+      showAlert(`Já existe um item com a descrição "${duplicado.descricao}".`);
       return null;
     }
     const aplicacoes = (ui.form.data.aplicacoes || []).slice();
@@ -655,9 +687,18 @@ export function initCrud() {
     if (event.target === dom.crudModal) closeModal();
   });
 
+  // Modal de alerta
+  const closeAlert = () => { dom.crudAlertModal.hidden = true; };
+  dom.btnCloseAlert.addEventListener("click", closeAlert);
+  dom.btnAlertOk.addEventListener("click", closeAlert);
+  dom.crudAlertModal.addEventListener("click", (event) => {
+    if (event.target === dom.crudAlertModal) closeAlert();
+  });
+
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
-    if (!dom.crudFormModal.hidden) closeFormModal();
+    if (!dom.crudAlertModal.hidden) closeAlert();
+    else if (!dom.crudFormModal.hidden) closeFormModal();
     else if (!dom.crudModal.hidden) closeModal();
   });
 
@@ -753,7 +794,7 @@ export function initCrud() {
 
       // Integridade: nao excluir marca/modelo que esteja aplicada por itens.
       if (entity === "marcas" && itensComMarca(id) > 0) {
-        window.alert(
+        showAlert(
           "Não é possível excluir: há itens vinculados a esta marca/modelo.",
         );
         return;
@@ -821,7 +862,7 @@ export function initCrud() {
       const index = Number(tipoDel.dataset.tipoDel);
       const tipo = ui.form.data.tipos[index];
       if (tipo && tipo.id != null && itensComTipo(tipo.id) > 0) {
-        window.alert("Não é possível remover: há itens vinculados a este tipo.");
+        showAlert("Não é possível remover: há itens vinculados a este tipo.");
         return;
       }
       ui.form.data.tipos.splice(index, 1);

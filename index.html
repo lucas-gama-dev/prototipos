@@ -234,6 +234,26 @@
                             <div id="crudFormBody" class="crud-form-body"></div>
                         </div>
                     </div>
+
+                    <!-- Modal de alerta (substitui window.alert) -->
+                    <div id="crudAlertModal" class="modal-overlay modal-overlay-alert" hidden>
+                        <div class="modal-box modal-box-crud modal-box-alert">
+                            <div class="modal-header">
+                                <h3 id="crudAlertTitle"><i class="fa-solid fa-triangle-exclamation"></i> Atenção</h3>
+                                <button id="btnCloseAlert" class="modal-close" type="button" aria-label="Fechar" title="Fechar">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div class="crud-alert-body">
+                                <p id="crudAlertMsg"></p>
+                                <div class="crud-alert-actions">
+                                    <button id="btnAlertOk" class="crud-btn-save" type="button">
+                                        <i class="fa-solid fa-check"></i> OK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </aside>
             </section>
         </main>
