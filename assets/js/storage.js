@@ -1,4 +1,4 @@
-const storageKey = "samu-cartesian-checklist-v5";
+const storageKey = "samu-cartesian-checklist-v7";
 
 export function loadPoints() {
   try {

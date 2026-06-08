@@ -14,7 +14,7 @@ const KEYS = {
 };
 
 // Versao dos dados-semente. Ao incrementar, os seeds sao reaplicados.
-const SEED_VERSION = 6;
+const SEED_VERSION = 8;
 const SEED_VERSION_KEY = "crud_seed_version";
 
 function read(key) {
@@ -76,13 +76,45 @@ function seedMarcas() {
 // viatura em todas as configurações, então aplica-se a TODOS os tipos da Mercedes
 // Sprinter (USB/USA/USI) e da Renault Master (USB/USA/USI).
 function seedItens() {
-  const tipos = [1, 2, 3, 4, 5, 6]; // Mercedes USB/USA/USI + Renault USB/USA/USI
+  const tiposAmbulancias = [1, 2, 3, 4, 5, 6]; // Mercedes USB/USA/USI + Renault USB/USA/USI
 
-  return defaultChecklist.map((point, index) => ({
+  const itensAmbulancias = defaultChecklist.map((point, index) => ({
     id: index + 1,
     descricao: point.descricao,
-    aplicacoes: tipos.slice(),
+    aplicacoes: tiposAmbulancias.slice(),
   }));
+
+  // Itens de manutenção da moto (Yamaha Versys - MOTO)
+  // Fonte: mapeamento-checklist-motos.md (seções 8.7 Sistema + 8.8 Estruturas)
+  const itensMoto = [
+    "Folga na Coluna de Direção",
+    "Folga na Corrente e Desgaste da Relação",
+    "Sistema de Freio",
+    "Sistema Elétrico",
+    "Carga Bateria",
+    "Kit de Ferramentas",
+    "Controle de Tração",
+    "Freio ABS",
+    "Banco",
+    "Carenagem Farol",
+    "Carenagem Lado Direito",
+    "Carenagem Lado Esquerdo",
+    "Carenagem Tanque",
+    "Paralamas Traseiro",
+    "Paralamas Dianteiro",
+    "Capacete",
+  ];
+
+  const tipoMoto = [9]; // MOTO
+  let nextId = itensAmbulancias.length + 1;
+
+  const itensMotoSeed = itensMoto.map((desc) => ({
+    id: nextId++,
+    descricao: desc,
+    aplicacoes: tipoMoto.slice(),
+  }));
+
+  return [...itensAmbulancias, ...itensMotoSeed];
 }
 
 const store = {
@@ -98,6 +130,33 @@ if (Number(read(SEED_VERSION_KEY)) !== SEED_VERSION) {
   write(KEYS.marcas, store.marcas);
   write(KEYS.itens, store.itens);
   write(SEED_VERSION_KEY, SEED_VERSION);
+}
+
+// Retorna itens do CRUD aplicaveis a uma marca, na ordem salva (para uso externo).
+// Cada item recebe um campo "ordem" sequencial (1, 2, 3...).
+export function getChecklistForMarca(marcaId) {
+  if (marcaId == null) return [];
+  const ordem = store.ordens[marcaId] || [];
+  const pos = new Map(ordem.map((id, index) => [id, index]));
+  const tipoIds = (
+    store.marcas.find((m) => m.id === marcaId)?.tipos || []
+  ).map((t) => t.id);
+
+  return store.itens
+    .filter((item) =>
+      (item.aplicacoes || []).some((tid) => tipoIds.includes(tid)),
+    )
+    .slice()
+    .sort((a, b) => {
+      const pa = pos.has(a.id) ? pos.get(a.id) : Infinity;
+      const pb = pos.has(b.id) ? pos.get(b.id) : Infinity;
+      return pa - pb || a.id - b.id;
+    })
+    .map((item, index) => ({
+      id: item.id,
+      descricao: item.descricao,
+      ordem: index + 1,
+    }));
 }
 
 function nextId(list) {

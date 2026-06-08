@@ -50,8 +50,8 @@ function markerHTML(point, coords, isExtra = false) {
       type="button"
       data-id="${point.id}"
       data-label="${point.descricao}"
-      aria-label="Ponto ${point.id}: ${point.descricao}"
-    >${point.id}</button>
+      aria-label="Ponto ${point.ordem || point.id}: ${point.descricao}"
+    >${point.ordem || point.id}</button>
   `;
 }
 
@@ -207,7 +207,7 @@ function renderTable() {
 
       return `
         <tr${selected} data-id="${point.id}">
-          <td><strong>${point.id}</strong></td>
+          <td><strong>${point.ordem || point.id}</strong></td>
           <td>${point.descricao}</td>
           <td class="${positioned ? "" : "coord-empty"}">${x}</td>
           <td class="${positioned ? "" : "coord-empty"}">${y}</td>

@@ -1,4 +1,5 @@
-import { defaultChecklist } from "./data/checklist.js";
+import { getChecklistForMarca } from "./crud.js";
+import { vehicleTypesConfig } from "./data/vehicles.js";
 import { loadPoints } from "./storage.js";
 
 let vehicleTypes = [];
@@ -40,11 +41,12 @@ export function activeImage() {
   return images[state.activeImageIndex] || images[0];
 }
 
-function cloneDefaultPoints() {
-  return defaultChecklist.map((point) => ({
-    ...point,
-    extras: point.extras ? point.extras.map((extra) => ({ ...extra })) : undefined,
-  }));
+// Retorna os itens do CRUD aplicaveis ao veiculo selecionado, na ordem do CRUD.
+function getPointsForType(typeId) {
+  const config = vehicleTypesConfig.find((c) => c.id === typeId);
+  const marcaId = config ? config.crudMarcaId : null;
+  const items = getChecklistForMarca(marcaId);
+  return items.map((item) => ({ ...item }));
 }
 
 export function allTypePoints() {
@@ -53,7 +55,7 @@ export function allTypePoints() {
   if (!typeId) return [];
 
   if (!state.pointsByType[typeId]) {
-    state.pointsByType[typeId] = cloneDefaultPoints();
+    state.pointsByType[typeId] = getPointsForType(typeId);
   }
 
   return state.pointsByType[typeId];
