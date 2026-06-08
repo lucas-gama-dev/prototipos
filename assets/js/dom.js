@@ -16,7 +16,6 @@ export const dom = {
   dbStatusbar: document.querySelector("#dbStatusbar"),
   btnOpenJson: document.querySelector("#btnOpenJson"),
   btnCloseJson: document.querySelector("#btnCloseJson"),
-  btnCopyJson: document.querySelector("#btnCopyJson"),
   jsonModal: document.querySelector("#jsonModal"),
   btnOpenCrud: document.querySelector("#btnOpenCrud"),
   btnCloseCrud: document.querySelector("#btnCloseCrud"),

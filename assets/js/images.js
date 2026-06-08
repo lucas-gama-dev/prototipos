@@ -1,18 +1,36 @@
 import { VERSION_MAX, vehicleTypesConfig } from "./data/vehicles.js";
+
+const FETCH_TIMEOUT_MS = 2000;
+
+async function fetchHead(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      method: "HEAD",
+      signal: controller.signal,
+    });
+    return response.ok ? url : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function findLatestVersion(folder, viewFolder, viewName, prefix, extensions) {
   for (let version = VERSION_MAX; version >= 1; version--) {
-    for (const ext of extensions) {
-      const url = `./${folder}/${viewFolder}/V${version}-${prefix}-${viewName}.${ext}`;
-
-      try {
-        const response = await fetch(url, { method: "HEAD" });
-        if (response.ok) return { version, src: url, ext };
-      } catch {
-        // Mantem a busca tolerante a falhas pontuais de rede/servidor.
-      }
+    // Testa todas as extensoes em paralelo para cada versao.
+    const urls = extensions.map(
+      (ext) => `./${folder}/${viewFolder}/V${version}-${prefix}-${viewName}.${ext}`,
+    );
+    const results = await Promise.all(urls.map(fetchHead));
+    const found = results.find((r) => r !== null);
+    if (found) {
+      const ext = found.split(".").pop();
+      return { version, src: found, ext };
     }
   }
-
   return null;
 }
 

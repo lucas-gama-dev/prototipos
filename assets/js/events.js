@@ -7,7 +7,6 @@ import {
 } from "./actions.js";
 import { dom } from "./dom.js";
 import {
-  buildDbSql,
   render,
   renderDbView,
   renderJson,
@@ -190,18 +189,5 @@ export function bindEvents() {
     if (event.key === "Escape" && !dom.jsonModal.hidden) {
       dom.jsonModal.hidden = true;
     }
-  });
-
-  dom.btnCopyJson.addEventListener("click", () => {
-    navigator.clipboard.writeText(buildDbSql()).then(() => {
-      const button = dom.btnCopyJson;
-      button.classList.add("is-copied");
-      button.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
-
-      setTimeout(() => {
-        button.classList.remove("is-copied");
-        button.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar SQL';
-      }, 2000);
-    });
   });
 }

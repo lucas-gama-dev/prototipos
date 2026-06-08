@@ -1,4 +1,4 @@
-export const VERSION_MAX = 30;
+export const VERSION_MAX = 10;
 
 export const vehicleTypesConfig = [
   {
