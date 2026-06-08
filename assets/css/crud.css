@@ -37,8 +37,8 @@
 }
 
 .modal-box-crud .modal-close:hover {
-    background: #eef1f5;
-    color: var(--text);
+    background: rgba(226, 27, 27, 0.1);
+    color: var(--red);
 }
 
 /* Abas */
@@ -201,7 +201,8 @@
 
 .crud-form-actions {
     display: flex;
-    flex: 0 0 auto;
+    flex: 0 0 100%;
+    justify-content: flex-end;
     gap: 8px;
 }
 

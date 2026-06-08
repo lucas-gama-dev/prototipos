@@ -206,9 +206,9 @@ function aplicacoesResumo(item) {
   return `<div class="crud-apl-resumo">${[...porMarca.entries()]
     .map(
       ([nome, tipos]) =>
-        `<div><span class="crud-apl-marca">${escapeHtml(nome)}</span> ${tipos
-          .map((t) => `<span class="crud-badge">${escapeHtml(t)}</span>`)
-          .join(" ")}</div>`,
+        `<div><span class="crud-apl-marca">${escapeHtml(nome)}</span> <span class="crud-badge">${tipos
+          .map((t) => escapeHtml(t))
+          .join("/")}</span></div>`,
     )
     .join("")}</div>`;
 }
@@ -228,11 +228,11 @@ function rowActions(entity, id) {
 function formActions(editing) {
   return `
     <div class="crud-form-actions">
-      <button type="submit" class="crud-btn-save">
-        <i class="fa-solid fa-check"></i> ${editing ? "Salvar" : "Adicionar"}
-      </button>
       <button type="button" class="crud-btn-cancel" data-crud-cancel>
         <i class="fa-solid fa-xmark"></i> Cancelar
+      </button>
+      <button type="submit" class="crud-btn-save">
+        <i class="fa-solid fa-check"></i> ${editing ? "Salvar" : "Adicionar"}
       </button>
     </div>`;
 }
@@ -270,11 +270,11 @@ function itensForm() {
         .map(
           ([marcaId, tipoIds]) => `
           <li class="crud-apl-item">
-            <span><strong>${escapeHtml(marcaNome(marcaId))}</strong> ${tipoIds
-              .map((t) => `<span class="crud-badge">${escapeHtml(tipoSigla(t))}</span>`)
-              .join(" ")}</span>
+            <span><strong>${escapeHtml(marcaNome(marcaId))}</strong> <span class="crud-badge">${tipoIds
+              .map((t) => escapeHtml(tipoSigla(t)))
+              .join("/")}</span></span>
             <button type="button" class="crud-icon-btn is-danger" data-apl-del="${marcaId}" title="Remover">
-              <i class="fa-solid fa-xmark"></i>
+              <i class="fa-solid fa-trash-can"></i>
             </button>
           </li>`,
         )
@@ -320,7 +320,7 @@ function viewItens() {
       <thead><tr>
         <th>#</th>
         <th><i class="fa-solid fa-align-left"></i> Descrição</th>
-        <th><i class="fa-solid fa-link"></i> Aplica-se a</th>
+        <th><i class="fa-solid fa-link"></i> Aplica-se a (marca/modelo/tipo)</th>
         <th></th>
       </tr></thead>
       <tbody>${rows || emptyRow(4)}</tbody>
@@ -340,7 +340,7 @@ function marcasForm() {
             <input class="crud-tipo-sigla" type="text" value="${escapeHtml(t.sigla || "")}" placeholder="Sigla" maxlength="10" autocomplete="off" />
             <input class="crud-tipo-nome" type="text" value="${escapeHtml(t.nome || "")}" placeholder="Descrição" autocomplete="off" />
             <button type="button" class="crud-icon-btn is-danger" data-tipo-del="${index}" title="Remover">
-              <i class="fa-solid fa-xmark"></i>
+              <i class="fa-solid fa-trash-can"></i>
             </button>
           </div>`,
         )
@@ -592,6 +592,7 @@ function invalidate(selector) {
 }
 
 function showAlert(msg) {
+  dom.crudAlertMsg.style.whiteSpace = "pre-line";
   dom.crudAlertMsg.textContent = msg;
   dom.crudAlertModal.hidden = false;
 }
@@ -794,8 +795,15 @@ export function initCrud() {
 
       // Integridade: nao excluir marca/modelo que esteja aplicada por itens.
       if (entity === "marcas" && itensComMarca(id) > 0) {
+        const marca = store.marcas.find((m) => m.id === id);
+        const vinculados = store.itens
+          .filter((it) =>
+            (it.aplicacoes || []).some((tipoId) => tipoMarcaId(tipoId) === id),
+          )
+          .map((it) => it.descricao)
+          .join(", ");
         showAlert(
-          "Não é possível excluir: há itens vinculados a esta marca/modelo.",
+          `Não é possível excluir "${marca ? marca.nome : ""}": está vinculada aos itens: ${vinculados}.\n\nPara excluir, primeiro desvincule na aba Itens.`,
         );
         return;
       }
@@ -862,7 +870,14 @@ export function initCrud() {
       const index = Number(tipoDel.dataset.tipoDel);
       const tipo = ui.form.data.tipos[index];
       if (tipo && tipo.id != null && itensComTipo(tipo.id) > 0) {
-        showAlert("Não é possível remover: há itens vinculados a este tipo.");
+        const marcaNomeAtual = ui.form.data.nome || "";
+        const vinculados = store.itens
+          .filter((it) => (it.aplicacoes || []).includes(tipo.id))
+          .map((it) => it.descricao)
+          .join(", ");
+        showAlert(
+          `Não é possível remover "${marcaNomeAtual} (${tipo.sigla})": está vinculado aos itens: ${vinculados}.\n\nPara remover, primeiro desvincule na aba Itens.`,
+        );
         return;
       }
       ui.form.data.tipos.splice(index, 1);
