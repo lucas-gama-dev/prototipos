@@ -31,4 +31,7 @@ export const dom = {
   crudAlertMsg: document.querySelector("#crudAlertMsg"),
   btnCloseAlert: document.querySelector("#btnCloseAlert"),
   btnAlertOk: document.querySelector("#btnAlertOk"),
+  crudImgPreviewModal: document.querySelector("#crudImgPreviewModal"),
+  crudImgPreviewImg: document.querySelector("#crudImgPreviewImg"),
+  btnCloseImgPreview: document.querySelector("#btnCloseImgPreview"),
 };

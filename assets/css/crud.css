@@ -464,7 +464,7 @@
 .crud-ordem-ctx {
     display: flex;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 2px;
     padding-top: 4px;
 }
 
@@ -610,8 +610,8 @@
 .crud-img-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    padding: 20px 16px;
+    gap: 14px;
+    padding: 10px 0 0;
 }
 
 .crud-img-card {
@@ -727,7 +727,7 @@
     align-items: center;
     justify-content: flex-end;
     gap: 12px;
-    padding: 0 16px 16px;
+    padding: 12px 0 16px;
 }
 
 .crud-btn-save {
@@ -762,4 +762,83 @@
 .crud-img-status.is-saved {
     color: #2e7d32;
     font-weight: 600;
+}
+
+/* Botões de ação na label da imagem (expandir + remover) */
+.crud-img-label-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.crud-img-expand {
+    padding: 3px 6px !important;
+    font-size: 0.7rem !important;
+}
+
+.crud-img-expand:hover {
+    border-color: #90b8de;
+    background: #eef4fb;
+    color: var(--blue);
+}
+
+/* Modal de preview de imagem (expandir fullscreen) */
+.modal-overlay-imgpreview {
+    z-index: 1300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.82);
+    animation: imgpreview-fadein 0.2s ease forwards;
+}
+
+@keyframes imgpreview-fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.modal-box-imgpreview {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 92vw;
+    max-height: 92vh;
+    animation: imgpreview-scalein 0.25s ease;
+}
+
+@keyframes imgpreview-scalein {
+    from { transform: scale(0.92); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
+
+.modal-imgpreview-img {
+    max-width: 92vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.modal-imgpreview-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    z-index: 1;
+}
+
+.modal-imgpreview-close:hover {
+    background: rgba(226, 27, 27, 0.8);
+    border-color: rgba(226, 27, 27, 0.6);
 }

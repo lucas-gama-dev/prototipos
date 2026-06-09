@@ -665,9 +665,12 @@ function viewImagens() {
     const removeBtn = src
       ? `<button type="button" class="crud-icon-btn is-danger crud-img-remove" data-img-remove="${face}" title="Remover imagem"><i class="fa-solid fa-trash-can"></i></button>`
       : "";
+    const expandBtn = src
+      ? `<button type="button" class="crud-icon-btn crud-img-expand" data-img-expand="${face}" title="Expandir imagem"><i class="fa-solid fa-expand"></i></button>`
+      : "";
     return `
       <div class="crud-img-card">
-        <div class="crud-img-label">${label} ${removeBtn}</div>
+        <div class="crud-img-label">${label} <span class="crud-img-label-actions">${expandBtn}${removeBtn}</span></div>
         <label class="crud-img-drop" data-img-face="${face}">
           <input type="file" accept="image/*" data-img-upload="${face}" hidden />
           ${preview}
@@ -890,9 +893,17 @@ export function initCrud() {
     if (event.target === dom.crudAlertModal) closeAlert();
   });
 
+  // Modal de preview de imagem (expandir)
+  const closeImgPreview = () => { dom.crudImgPreviewModal.hidden = true; dom.crudImgPreviewImg.src = ""; };
+  dom.btnCloseImgPreview.addEventListener("click", closeImgPreview);
+  dom.crudImgPreviewModal.addEventListener("click", (event) => {
+    if (event.target === dom.crudImgPreviewModal) closeImgPreview();
+  });
+
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
-    if (!dom.crudAlertModal.hidden) closeAlert();
+    if (!dom.crudImgPreviewModal.hidden) closeImgPreview();
+    else if (!dom.crudAlertModal.hidden) closeAlert();
     else if (!dom.crudFormModal.hidden) closeFormModal();
     else if (!dom.crudModal.hidden) closeModal();
   });
@@ -1024,6 +1035,31 @@ export function initCrud() {
   });
 
   dom.crudBody.addEventListener("click", (event) => {
+    // Aba Imagens: expandir imagem (preview)
+    const expandBtn = event.target.closest("[data-img-expand]");
+    if (expandBtn) {
+      const face = expandBtn.dataset.imgExpand;
+      const marcaId = ui.imagens.marcaId;
+      if (marcaId == null) return;
+      // Resolve a imagem: custom (store) ou filesystem
+      const imgs = store.imagens[marcaId] || {};
+      let src = imgs[face];
+      if (!src) {
+        const vehicleConfig = vehicleTypesConfig.find((c) => c.crudMarcaId === marcaId);
+        const resolvedTypes = getVehicleTypes();
+        const resolvedType = vehicleConfig ? resolvedTypes.find((t) => t.id === vehicleConfig.id) : null;
+        const resolvedImages = resolvedType ? resolvedType.images : [];
+        const label = face === "frente" ? "Frente" : "Traseira";
+        const fsImg = resolvedImages.find((img) => img.label === label);
+        if (fsImg) src = fsImg.src;
+      }
+      if (src) {
+        dom.crudImgPreviewImg.src = src;
+        dom.crudImgPreviewModal.hidden = false;
+      }
+      return;
+    }
+
     // Aba Imagens: remover imagem
     const removeBtn = event.target.closest("[data-img-remove]");
     if (removeBtn) {
