@@ -1,5 +1,7 @@
 import { defaultChecklist } from "./data/checklist.js";
+import { vehicleTypesConfig } from "./data/vehicles.js";
 import { dom } from "./dom.js";
+import { getVehicleTypes } from "./state.js";
 import { escapeHtml } from "./utils.js";
 
 // CRUD de exemplo (independente do mapeamento). Duas entidades: Itens de
@@ -11,6 +13,8 @@ const KEYS = {
   itens: "crud_itens",
   // Ordem dos itens por tipo: { [tipoId]: [itemId, ...] }
   ordens: "crud_ordens",
+  // Imagens por marca: { [marcaId]: { frente: dataUrl, traseira: dataUrl } }
+  imagens: "crud_imagens",
 };
 
 // Versao dos dados-semente. Ao incrementar, os seeds sao reaplicados.
@@ -165,6 +169,7 @@ const store = {
   marcas: read(KEYS.marcas) || seedMarcas(),
   itens: read(KEYS.itens) || seedItens(),
   ordens: read(KEYS.ordens) || {},
+  imagens: read(KEYS.imagens) || {},
 };
 
 // Aplica os seeds no primeiro uso e os reaplica quando SEED_VERSION muda.
@@ -235,6 +240,7 @@ const ui = {
   tab: "itens",
   form: null, // { entity, mode, data } | null
   ordem: { marcaId: null }, // contexto da aba Ordem (por marca/modelo)
+  imagens: { marcaId: null }, // contexto da aba Imagens
 };
 
 function marcaNome(id) {
@@ -608,7 +614,91 @@ function saveOrdemFromDom() {
   }
 }
 
-const VIEWS = { itens: viewItens, marcas: viewMarcas, ordem: viewOrdem };
+// ---- Aba Imagens (upload de frente/traseira por marca/modelo) ----
+
+function ensureImagensCtx() {
+  if (
+    ui.imagens.marcaId == null ||
+    !store.marcas.some((m) => m.id === ui.imagens.marcaId)
+  ) {
+    ui.imagens.marcaId = store.marcas[0] ? store.marcas[0].id : null;
+  }
+}
+
+function viewImagens() {
+  ensureImagensCtx();
+  const ctx = ui.imagens;
+  const marca = store.marcas.find((m) => m.id === ctx.marcaId);
+
+  const marcaOpts = store.marcas
+    .map(
+      (m) =>
+        `<option value="${m.id}"${m.id === ctx.marcaId ? " selected" : ""}>${escapeHtml(m.nome)}</option>`,
+    )
+    .join("");
+
+  const tipos = marca
+    ? (marca.tipos || [])
+        .map((t) => `<span class="crud-badge">${escapeHtml(t.sigla)}</span>`)
+        .join(" ")
+    : "—";
+
+  // Busca as imagens resolvidas do filesystem para esta marca
+  const vehicleConfig = vehicleTypesConfig.find((c) => c.crudMarcaId === ctx.marcaId);
+  const resolvedTypes = getVehicleTypes();
+  const resolvedType = vehicleConfig
+    ? resolvedTypes.find((t) => t.id === vehicleConfig.id)
+    : null;
+  const resolvedImages = resolvedType ? resolvedType.images : [];
+  const fsFronte = resolvedImages.find((img) => img.label === "Frente");
+  const fsTraseira = resolvedImages.find((img) => img.label === "Traseira");
+
+  const imgs = store.imagens[ctx.marcaId] || {};
+
+  function thumbCard(face, label, fsImage) {
+    const customSrc = imgs[face];
+    const src = customSrc || (fsImage ? fsImage.src : null);
+    const isFs = !customSrc && !!fsImage;
+    const preview = src
+      ? `<div class="crud-img-wrap"><img src="${src}" alt="${label}" class="crud-img-preview" /><div class="crud-img-overlay"><i class="fa-solid fa-cloud-arrow-up"></i> Clique ou arraste para substituir</div></div>`
+      : `<div class="crud-img-empty"><i class="fa-solid fa-cloud-arrow-up"></i><span>Clique ou arraste para enviar</span></div>`;
+    const removeBtn = src
+      ? `<button type="button" class="crud-icon-btn is-danger crud-img-remove" data-img-remove="${face}" title="Remover imagem"><i class="fa-solid fa-trash-can"></i></button>`
+      : "";
+    return `
+      <div class="crud-img-card">
+        <div class="crud-img-label">${label} ${removeBtn}</div>
+        <label class="crud-img-drop" data-img-face="${face}">
+          <input type="file" accept="image/*" data-img-upload="${face}" hidden />
+          ${preview}
+        </label>
+      </div>`;
+  }
+
+  return `
+    <div class="crud-ordem-ctx">
+      <div class="crud-ordem-field">
+        <label for="crudImagensMarca">Marca/Modelo</label>
+        <select id="crudImagensMarca">${marcaOpts || '<option value="">-</option>'}</select>
+      </div>
+      <div class="crud-ordem-field">
+        <label>Tipos</label>
+        <div class="crud-ordem-tipos">${tipos}</div>
+      </div>
+    </div>
+    <div class="crud-img-grid">
+      ${thumbCard("frente", "Frente", fsFronte)}
+      ${thumbCard("traseira", "Traseira", fsTraseira)}
+    </div>
+    <div class="crud-img-actions">
+      <span id="crudImgStatus" class="crud-img-status"></span>
+      <button type="button" class="crud-btn-save" id="crudImgSave">
+        <i class="fa-solid fa-floppy-disk"></i> Salvar
+      </button>
+    </div>`;
+}
+
+const VIEWS = { itens: viewItens, marcas: viewMarcas, ordem: viewOrdem, imagens: viewImagens };
 
 function render() {
   dom.crudBody.innerHTML = VIEWS[ui.tab]();
@@ -618,8 +708,9 @@ function setActiveTab() {
   dom.crudTabs.querySelectorAll(".crud-tab").forEach((tab) => {
     tab.classList.toggle("is-active", tab.dataset.tab === ui.tab);
   });
-  // A aba Ordem não cria registros: esconde o botão "Novo".
-  dom.btnCrudNew.style.display = ui.tab === "ordem" ? "none" : "";
+  // Abas Ordem e Imagens não criam registros: esconde o botão "Novo".
+  const hideTabs = ["ordem", "imagens"];
+  dom.btnCrudNew.style.display = hideTabs.includes(ui.tab) ? "none" : "";
 }
 
 // ---- Modal de formulário (Novo / Editar) ----
@@ -809,7 +900,7 @@ export function initCrud() {
   dom.crudTabs.addEventListener("click", (event) => {
     // Botão "Novo" (na barra de abas): cria um registro da aba atual.
     if (event.target.closest(".crud-btn-new")) {
-      if (ui.tab === "ordem") return; // a aba Ordem não cria registros
+      if (ui.tab === "ordem" || ui.tab === "imagens") return;
       ui.form = { entity: ui.tab, mode: "new", data: {} };
       openFormModal();
       return;
@@ -824,11 +915,68 @@ export function initCrud() {
   });
 
   // Aba Ordem: troca de contexto (marca/modelo).
+  // Aba Imagens: troca de marca e upload de imagens.
   dom.crudBody.addEventListener("change", (event) => {
     if (event.target.id === "crudOrdemMarca") {
       ui.ordem.marcaId = Number(event.target.value) || null;
       render();
     }
+    if (event.target.id === "crudImagensMarca") {
+      ui.imagens.marcaId = Number(event.target.value) || null;
+      render();
+    }
+    // Upload de imagem (frente/traseira)
+    const uploadInput = event.target.closest("[data-img-upload]");
+    if (uploadInput && uploadInput.files && uploadInput.files[0]) {
+      const face = uploadInput.dataset.imgUpload;
+      const file = uploadInput.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const marcaId = ui.imagens.marcaId;
+        if (marcaId == null) return;
+        if (!store.imagens[marcaId]) store.imagens[marcaId] = {};
+        store.imagens[marcaId][face] = reader.result;
+        persist("imagens");
+        render();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Aba Imagens: drag-and-drop de arquivos na área de upload.
+  dom.crudBody.addEventListener("dragover", (event) => {
+    const drop = event.target.closest(".crud-img-drop");
+    if (drop) {
+      event.preventDefault();
+      drop.classList.add("is-dragover");
+    }
+  });
+
+  dom.crudBody.addEventListener("dragleave", (event) => {
+    const drop = event.target.closest(".crud-img-drop");
+    if (drop) drop.classList.remove("is-dragover");
+  });
+
+  dom.crudBody.addEventListener("drop", (event) => {
+    const drop = event.target.closest(".crud-img-drop");
+    if (!drop) return;
+    event.preventDefault();
+    drop.classList.remove("is-dragover");
+
+    const face = drop.dataset.imgFace;
+    const file = event.dataTransfer.files && event.dataTransfer.files[0];
+    if (!file || !file.type.startsWith("image/")) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const marcaId = ui.imagens.marcaId;
+      if (marcaId == null) return;
+      if (!store.imagens[marcaId]) store.imagens[marcaId] = {};
+      store.imagens[marcaId][face] = reader.result;
+      persist("imagens");
+      render();
+    };
+    reader.readAsDataURL(file);
   });
 
   // Aba Ordem: arrastar e soltar para reordenar (salva automaticamente).
@@ -876,6 +1024,40 @@ export function initCrud() {
   });
 
   dom.crudBody.addEventListener("click", (event) => {
+    // Aba Imagens: remover imagem
+    const removeBtn = event.target.closest("[data-img-remove]");
+    if (removeBtn) {
+      const face = removeBtn.dataset.imgRemove;
+      const marcaId = ui.imagens.marcaId;
+      if (marcaId != null && store.imagens[marcaId]) {
+        delete store.imagens[marcaId][face];
+        persist("imagens");
+        render();
+      }
+      return;
+    }
+
+    // Aba Imagens: botão Salvar (protótipo — sem ação real)
+    if (event.target.closest("#crudImgSave")) {
+      const status = document.querySelector("#crudImgStatus");
+      const btn = document.querySelector("#crudImgSave");
+      if (status) {
+        status.innerHTML = '<i class="fa-solid fa-check"></i> Salvo!';
+        status.classList.add("is-saved");
+      }
+      if (btn) {
+        btn.classList.add("is-saved");
+      }
+      setTimeout(() => {
+        if (status) {
+          status.textContent = "";
+          status.classList.remove("is-saved");
+        }
+        if (btn) btn.classList.remove("is-saved");
+      }, 2000);
+      return;
+    }
+
     const editBtn = event.target.closest("[data-edit]");
     if (editBtn) {
       const entity = editBtn.dataset.edit;

@@ -9,7 +9,6 @@ import { dom } from "./dom.js";
 import {
   render,
   renderDbView,
-  renderJson,
   resetMapStructure,
 } from "./render.js";
 import { state } from "./state.js";
@@ -146,28 +145,7 @@ export function bindEvents() {
   });
 
   dom.btnSave.addEventListener("click", () => {
-    renderJson();
-
-    const blob = new Blob([dom.jsonOutput.textContent], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `mapeamento-${state.selectedTypeId || "pontos"}.json`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-
-    const button = dom.btnSave;
-    button.classList.add("is-saved");
-    button.innerHTML = '<i class="fa-solid fa-check"></i> Salvo!';
-
-    setTimeout(() => {
-      button.classList.remove("is-saved");
-      button.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
-    }, 2000);
+    // Protótipo: sem ação real de salvamento.
   });
 
   dom.btnOpenJson.addEventListener("click", () => {
