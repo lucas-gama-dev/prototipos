@@ -704,8 +704,7 @@
 }
 
 .crud-img-remove {
-    padding: 3px 6px !important;
-    font-size: 0.7rem !important;
+    font-size: 0.78rem;
 }
 
 .crud-img-badge {
@@ -768,12 +767,36 @@
 .crud-img-label-actions {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
+}
+
+/* Badge de origem da imagem (No servidor / Local) */
+.crud-img-source {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    white-space: nowrap;
+}
+
+.crud-img-source.is-server {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.crud-img-source.is-local {
+    background: #fff3e0;
+    color: #e65100;
 }
 
 .crud-img-expand {
-    padding: 3px 6px !important;
-    font-size: 0.7rem !important;
+    font-size: 0.78rem;
 }
 
 .crud-img-expand:hover {

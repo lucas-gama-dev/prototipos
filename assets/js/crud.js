@@ -169,7 +169,7 @@ const store = {
   marcas: read(KEYS.marcas) || seedMarcas(),
   itens: read(KEYS.itens) || seedItens(),
   ordens: read(KEYS.ordens) || {},
-  imagens: read(KEYS.imagens) || {},
+  imagens: {},
 };
 
 // Aplica os seeds no primeiro uso e os reaplica quando SEED_VERSION muda.
@@ -240,7 +240,7 @@ const ui = {
   tab: "itens",
   form: null, // { entity, mode, data } | null
   ordem: { marcaId: null }, // contexto da aba Ordem (por marca/modelo)
-  imagens: { marcaId: null }, // contexto da aba Imagens
+  imagens: { marcaId: null, pendingFaces: {} }, // contexto da aba Imagens
 };
 
 function marcaNome(id) {
@@ -659,6 +659,16 @@ function viewImagens() {
     const customSrc = imgs[face];
     const src = customSrc || (fsImage ? fsImage.src : null);
     const isFs = !customSrc && !!fsImage;
+    const isPending = !!(customSrc && (ui.imagens.pendingFaces[ctx.marcaId] || {})[face]);
+    // Badge de origem: filesystem ou salvo = "No servidor"; upload pendente = "Local"
+    let sourceBadge = "";
+    if (src) {
+      if (isPending) {
+        sourceBadge = `<span class="crud-img-source is-local"><i class="fa-solid fa-laptop"></i> Local</span>`;
+      } else {
+        sourceBadge = `<span class="crud-img-source is-server"><i class="fa-solid fa-server"></i> No servidor</span>`;
+      }
+    }
     const preview = src
       ? `<div class="crud-img-wrap"><img src="${src}" alt="${label}" class="crud-img-preview" /><div class="crud-img-overlay"><i class="fa-solid fa-cloud-arrow-up"></i> Clique ou arraste para substituir</div></div>`
       : `<div class="crud-img-empty"><i class="fa-solid fa-cloud-arrow-up"></i><span>Clique ou arraste para enviar</span></div>`;
@@ -670,7 +680,7 @@ function viewImagens() {
       : "";
     return `
       <div class="crud-img-card">
-        <div class="crud-img-label">${label} <span class="crud-img-label-actions">${expandBtn}${removeBtn}</span></div>
+        <div class="crud-img-label">${label} <span class="crud-img-label-actions">${sourceBadge}${expandBtn}${removeBtn}</span></div>
         <label class="crud-img-drop" data-img-face="${face}">
           <input type="file" accept="image/*" data-img-upload="${face}" hidden />
           ${preview}
@@ -869,6 +879,9 @@ function openModal() {
 }
 
 function closeModal() {
+  // Imagens customizadas sao efemeras (so vivem enquanto o modal esta aberto).
+  store.imagens = {};
+  ui.imagens.pendingFaces = {};
   dom.crudModal.hidden = true;
 }
 
@@ -947,7 +960,8 @@ export function initCrud() {
         if (marcaId == null) return;
         if (!store.imagens[marcaId]) store.imagens[marcaId] = {};
         store.imagens[marcaId][face] = reader.result;
-        persist("imagens");
+        if (!ui.imagens.pendingFaces[marcaId]) ui.imagens.pendingFaces[marcaId] = {};
+        ui.imagens.pendingFaces[marcaId][face] = true;
         render();
       };
       reader.readAsDataURL(file);
@@ -984,7 +998,8 @@ export function initCrud() {
       if (marcaId == null) return;
       if (!store.imagens[marcaId]) store.imagens[marcaId] = {};
       store.imagens[marcaId][face] = reader.result;
-      persist("imagens");
+      if (!ui.imagens.pendingFaces[marcaId]) ui.imagens.pendingFaces[marcaId] = {};
+      ui.imagens.pendingFaces[marcaId][face] = true;
       render();
     };
     reader.readAsDataURL(file);
@@ -1067,14 +1082,18 @@ export function initCrud() {
       const marcaId = ui.imagens.marcaId;
       if (marcaId != null && store.imagens[marcaId]) {
         delete store.imagens[marcaId][face];
-        persist("imagens");
         render();
       }
       return;
     }
 
-    // Aba Imagens: botão Salvar (protótipo — sem ação real)
+    // Aba Imagens: botão Salvar (simula envio ao servidor)
     if (event.target.closest("#crudImgSave")) {
+      const marcaId = ui.imagens.marcaId;
+      // Limpa pendências: imagens locais viram "No servidor"
+      if (marcaId != null) {
+        delete ui.imagens.pendingFaces[marcaId];
+      }
       const status = document.querySelector("#crudImgStatus");
       const btn = document.querySelector("#crudImgSave");
       if (status) {
@@ -1084,6 +1103,7 @@ export function initCrud() {
       if (btn) {
         btn.classList.add("is-saved");
       }
+      render();
       setTimeout(() => {
         if (status) {
           status.textContent = "";
