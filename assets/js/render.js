@@ -295,7 +295,7 @@ function dbRowValues(point, index, type, images) {
     id: index + 1,
     viatura_tipo_id: type.id,
     viatura_tipo_label: type.label,
-    ordem: point.id,
+    ordem: point.ordem || point.id,
     descricao: point.descricao,
     image_index: imageIndex,
     imagem_face: face,
