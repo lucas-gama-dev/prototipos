@@ -14,7 +14,7 @@ const KEYS = {
 };
 
 // Versao dos dados-semente. Ao incrementar, os seeds sao reaplicados.
-const SEED_VERSION = 8;
+const SEED_VERSION = 9;
 const SEED_VERSION_KEY = "crud_seed_version";
 
 function read(key) {
@@ -72,20 +72,59 @@ function seedMarcas() {
   ];
 }
 
-// Os 34 itens conhecidos, cadastrados UMA vez. Cada item (peça física) existe na
-// viatura em todas as configurações, então aplica-se a TODOS os tipos da Mercedes
-// Sprinter (USB/USA/USI) e da Renault Master (USB/USA/USI).
+// Itens de checklist com suas aplicacoes (tipos vinculados).
+// Itens que se aplicam a mais de um veiculo recebem multiplos tipoIds.
 function seedItens() {
-  const tiposAmbulancias = [1, 2, 3, 4, 5, 6]; // Mercedes USB/USA/USI + Renault USB/USA/USI
+  const AMB = [1, 2, 3, 4, 5, 6]; // Mercedes + Renault (USB/USA/USI)
+  const SW4 = [7, 8];              // Toyota SW4 (VIR/VIM)
+  const MOTO = [9];                // Yamaha Versys (MOTO)
+  const AMB_SW4 = [...AMB, ...SW4]; // Compartilhados ambulância + SW4
 
-  const itensAmbulancias = defaultChecklist.map((point, index) => ({
-    id: index + 1,
-    descricao: point.descricao,
-    aplicacoes: tiposAmbulancias.slice(),
-  }));
+  // IDs de itens da ambulância que se aplicam TAMBÉM ao SW4
+  // (peças comuns: parabrisa, capô, faróis, parachoque, retrovisores, portas, etc.)
+  const idsCompartilhados = [
+    2,  // Parabrisa
+    3,  // Capô
+    4,  // Farol Dianteiro Direito
+    5,  // Grade Frontal
+    6,  // Farol Dianteiro Esquerdo
+    7,  // Parachoque
+    13, // Retrovisor Esquerdo
+    14, // Porta Dianteira Esquerda
+    15, // Lataria Lateral Esquerda
+    17, // Luz Patrulheiro
+    19, // Camera
+    20, // Porta Traseira Esquerda
+    21, // Porta Traseira Direita
+    22, // Farol Traseiro Esquerdo
+    25, // Farol Traseiro Direito
+    33, // Retrovisor Direito
+    34, // Porta Dianteira Direita
+  ];
 
-  // Itens de manutenção da moto (Yamaha Versys - MOTO)
-  // Fonte: mapeamento-checklist-motos.md (seções 8.7 Sistema + 8.8 Estruturas)
+  // Itens das ambulâncias (34), com os compartilhados recebendo SW4 nos tipos
+  const itensAmbulancias = defaultChecklist.map((point, index) => {
+    const id = index + 1;
+    const tipos = idsCompartilhados.includes(id) ? AMB_SW4.slice() : AMB.slice();
+    return { id, descricao: point.descricao, aplicacoes: tipos };
+  });
+
+  // Itens EXCLUSIVOS da Toyota SW4 (peças que não existem nas ambulâncias)
+  const itensSW4 = [
+    "Grade de Proteção (Mata-Burro)",
+    "Rack de Teto",
+    "Antena",
+    "Estribo Lateral Esquerdo",
+    "Estribo Lateral Direito",
+    "Para-lama Dianteiro Esquerdo",
+    "Para-lama Dianteiro Direito",
+    "Para-lama Traseiro Esquerdo",
+    "Para-lama Traseiro Direito",
+    "Vidro Traseiro",
+    "Lataria Lateral Direita",
+  ];
+
+  // Itens da moto (Yamaha Versys - MOTO)
   const itensMoto = [
     "Folga na Coluna de Direção",
     "Folga na Corrente e Desgaste da Relação",
@@ -105,16 +144,21 @@ function seedItens() {
     "Capacete",
   ];
 
-  const tipoMoto = [9]; // MOTO
   let nextId = itensAmbulancias.length + 1;
+
+  const itensSW4Seed = itensSW4.map((desc) => ({
+    id: nextId++,
+    descricao: desc,
+    aplicacoes: SW4.slice(),
+  }));
 
   const itensMotoSeed = itensMoto.map((desc) => ({
     id: nextId++,
     descricao: desc,
-    aplicacoes: tipoMoto.slice(),
+    aplicacoes: MOTO.slice(),
   }));
 
-  return [...itensAmbulancias, ...itensMotoSeed];
+  return [...itensAmbulancias, ...itensSW4Seed, ...itensMotoSeed];
 }
 
 const store = {
