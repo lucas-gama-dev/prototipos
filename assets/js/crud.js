@@ -237,7 +237,7 @@ function remove(entity, id) {
 // ---- Estado da UI ----
 
 const ui = {
-  tab: "itens",
+  tab: "marcas",
   form: null, // { entity, mode, data } | null
   ordem: { marcaId: null }, // contexto da aba Ordem (por marca/modelo)
   imagens: { marcaId: null, pendingFaces: {} }, // contexto da aba Imagens
