@@ -157,12 +157,6 @@ export function bindEvents() {
     dom.jsonModal.hidden = true;
   });
 
-  dom.jsonModal.addEventListener("click", (event) => {
-    if (event.target === dom.jsonModal) {
-      dom.jsonModal.hidden = true;
-    }
-  });
-
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !dom.jsonModal.hidden) {
       dom.jsonModal.hidden = true;

@@ -1,6 +1,7 @@
 import { defaultChecklist } from "./data/checklist.js";
 import { vehicleTypesConfig } from "./data/vehicles.js";
 import { dom } from "./dom.js";
+import { openPickerModal } from "./picker-modal.js";
 import { getVehicleTypes } from "./state.js";
 import { escapeHtml } from "./utils.js";
 
@@ -18,8 +19,37 @@ const KEYS = {
 };
 
 // Versao dos dados-semente. Ao incrementar, os seeds sao reaplicados.
-const SEED_VERSION = 11;
+const SEED_VERSION = 12;
 const SEED_VERSION_KEY = "crud_seed_version";
+
+// Catálogo de tipos disponíveis para selecionar ao cadastrar marca/modelo.
+const TIPOS_CATALOGO = [
+  { sigla: "USB", nome: "Unidade de Suporte Básico" },
+  { sigla: "USA", nome: "Unidade de Suporte Avançado" },
+  { sigla: "USI", nome: "Unidade de Suporte Intermediário" },
+  { sigla: "VIR", nome: "Veículo de Intervenção Rápida" },
+  { sigla: "VIM", nome: "Veículo de Intervenção Médica" },
+  { sigla: "VOP", nome: "Veículo Operacional" },
+  { sigla: "MOTO", nome: "Motolância" },
+  { sigla: "Helicóptero", nome: "Helicóptero" },
+  { sigla: "Bike", nome: "Bike" },
+  { sigla: "URSB CBMDF", nome: "Unidade de Resgate de Suporte Básico" },
+  { sigla: "UR CBMDF", nome: "Unidade de Resgate" },
+  { sigla: "MACA-RESERVA", nome: "Maca Reserva" },
+  { sigla: "VIR/USB", nome: "VIR/USB" },
+  { sigla: "USA Apoio", nome: "USA Apoio" },
+  { sigla: "USMV", nome: "Unidade de Suporte a Múltiplas Vítimas" },
+  { sigla: "PMR", nome: "Posto Móvel de Regulação" },
+];
+
+// Catálogo de marca/modelo disponíveis para seleção.
+const MARCA_MODELO_CATALOGO = [
+  { marca: "Mercedes", modelo: "Sprinter" },
+  { marca: "Renault", modelo: "Master" },
+  { marca: "Toyota", modelo: "SW4" },
+  { marca: "Yamaha", modelo: "Versys" },
+  { marca: "Peugeot", modelo: "Expert" },
+];
 
 function read(key) {
   try {
@@ -44,7 +74,8 @@ function seedMarcas() {
   return [
     {
       id: 1,
-      nome: "Mercedes Sprinter",
+      marca: "Mercedes",
+      modelo: "Sprinter",
       tipos: [
         { id: 1, sigla: "USB", nome: "Unidade de Suporte Básico" },
         { id: 2, sigla: "USA", nome: "Unidade de Suporte Avançado" },
@@ -53,7 +84,8 @@ function seedMarcas() {
     },
     {
       id: 2,
-      nome: "Renault Master",
+      marca: "Renault",
+      modelo: "Master",
       tipos: [
         { id: 4, sigla: "USB", nome: "Unidade de Suporte Básico" },
         { id: 5, sigla: "USA", nome: "Unidade de Suporte Avançado" },
@@ -62,21 +94,24 @@ function seedMarcas() {
     },
     {
       id: 3,
-      nome: "Toyota SW4",
+      marca: "Toyota",
+      modelo: "SW4",
       tipos: [
-        { id: 7, sigla: "VIR", nome: "Viatura de Intervenção Rápida" },
-        { id: 8, sigla: "VIM", nome: "Viatura de Intervenção Média" },
+        { id: 7, sigla: "VIR", nome: "Veículo de Intervenção Rápida" },
+        { id: 8, sigla: "VIM", nome: "Veículo de Intervenção Médica" },
       ],
     },
     {
       id: 4,
-      nome: "Yamaha Versys",
+      marca: "Yamaha",
+      modelo: "Versys",
       tipos: [{ id: 9, sigla: "MOTO", nome: "Motolância" }],
     },
     {
       id: 5,
-      nome: "Peugeot Expert",
-      tipos: [{ id: 10, sigla: "VOP", nome: "Viatura de Operações" }],
+      marca: "Peugeot",
+      modelo: "Expert",
+      tipos: [{ id: 10, sigla: "VOP", nome: "Veículo Operacional" }],
     },
   ];
 }
@@ -275,9 +310,14 @@ const ui = {
   imagens: { marcaId: null, pendingFaces: {} }, // contexto da aba Imagens
 };
 
+function marcaNomeCompleto(m) {
+  if (!m) return "—";
+  return [m.marca, m.modelo].filter(Boolean).join(" ");
+}
+
 function marcaNome(id) {
   const marca = store.marcas.find((item) => item.id === id);
-  return marca ? marca.nome : "—";
+  return marcaNomeCompleto(marca);
 }
 
 // Todos os tipos (achatados), cada um com a marca dona.
@@ -392,7 +432,8 @@ function itensForm() {
   const marcaOpts = store.marcas
     .map((m) => {
       const tipos = (m.tipos || []).map((t) => t.sigla).join("/");
-      const label = tipos ? `${m.nome} (${tipos})` : m.nome;
+      const fullName = marcaNomeCompleto(m);
+      const label = tipos ? `${fullName} (${tipos})` : fullName;
       return `<option value="${m.id}">${escapeHtml(label)}</option>`;
     })
     .join("");
@@ -473,33 +514,46 @@ function marcasForm() {
   const tipos = data.tipos || [];
   const editing = ui.form && ui.form.mode === "edit";
 
+  // Siglas já adicionadas (para excluir do select)
+  const siglasAdded = new Set(tipos.map((t) => t.sigla));
+
   const tipoRows = tipos.length
-    ? `<div class="crud-tipo-list">${tipos
+    ? `<ul class="crud-apl-list">${tipos
         .map(
           (t, index) => `
-          <div class="crud-tipo-row" data-tipo-id="${t.id != null ? t.id : ""}">
-            <input class="crud-tipo-sigla" type="text" value="${escapeHtml(t.sigla || "")}" placeholder="Sigla" maxlength="10" autocomplete="off" />
-            <input class="crud-tipo-nome" type="text" value="${escapeHtml(t.nome || "")}" placeholder="Descrição" autocomplete="off" />
+          <li class="crud-apl-item" data-tipo-id="${t.id != null ? t.id : ""}">
+            <span><span class="crud-badge">${escapeHtml(t.sigla || "")}</span> ${escapeHtml(t.nome || "")}</span>
             <button type="button" class="crud-icon-btn is-danger" data-tipo-del="${index}" title="Remover">
               <i class="fa-solid fa-trash-can"></i>
             </button>
-          </div>`,
+          </li>`,
         )
-        .join("")}</div>`
+        .join("")}</ul>`
     : `<p class="crud-apl-empty">Nenhum tipo. Adicione os tipos desta marca/modelo.</p>`;
+
+  // Tipos disponíveis (não adicionados)
+  const availableTypes = TIPOS_CATALOGO.filter((t) => !siglasAdded.has(t.sigla));
+  const hasAvailable = availableTypes.length > 0;
+
+  const marcaModeloLabel = data.marca && data.modelo
+    ? `${data.marca} ${data.modelo}`
+    : "";
 
   return `
     <form class="crud-form" data-entity="marcas" data-id="${data.id || ""}">
-      <div class="crud-field crud-field-wide">
-        <label for="crudNome">Marca/Modelo</label>
-        <input id="crudNome" type="text" value="${escapeHtml(data.nome || "")}" placeholder="Ex.: Mercedes Sprinter" autocomplete="off" />
+      <div class="crud-field">
+        <label>Marca / Modelo</label>
+        <button type="button" class="crud-picker-field" data-picker-marca-modelo>
+          <span class="${marcaModeloLabel ? '' : 'crud-picker-placeholder'}">${escapeHtml(marcaModeloLabel || "Selecionar marca/modelo...")}</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
       </div>
 
       <div class="crud-apl">
         <span class="crud-apl-label">Tipos desta marca/modelo</span>
         ${tipoRows}
-        <button type="button" class="crud-btn-new crud-btn-add-tipo" data-tipo-add>
-          <i class="fa-solid fa-plus"></i> Adicionar tipo
+        <button type="button" class="crud-btn-add-tipo" data-tipo-picker${!hasAvailable ? " disabled" : ""}>
+          <i class="fa-solid fa-plus"></i> ${hasAvailable ? "Adicionar tipo" : "Todos já adicionados"}
         </button>
       </div>
 
@@ -513,7 +567,8 @@ function viewMarcas() {
       (m) => `
       <tr>
         <td class="crud-num">${m.id}</td>
-        <td>${escapeHtml(m.nome)}</td>
+        <td>${escapeHtml(m.marca || "")}</td>
+        <td>${escapeHtml(m.modelo || "")}</td>
         <td>${tiposBadges(m.id)}</td>
         ${rowActions("marcas", m.id)}
       </tr>`,
@@ -523,11 +578,12 @@ function viewMarcas() {
   return `<table class="crud-table">
       <thead><tr>
         <th>#</th>
-        <th><i class="fa-solid fa-car-side"></i> Marca/Modelo</th>
+        <th><i class="fa-solid fa-car-side"></i> Marca</th>
+        <th><i class="fa-solid fa-car"></i> Modelo</th>
         <th><i class="fa-solid fa-tags"></i> Tipos</th>
         <th></th>
       </tr></thead>
-      <tbody>${rows || emptyRow(4)}</tbody>
+      <tbody>${rows || emptyRow(5)}</tbody>
     </table>`;
 }
 
@@ -572,7 +628,7 @@ function viewOrdem() {
   const marcaOpts = store.marcas
     .map(
       (m) =>
-        `<option value="${m.id}" ${m.id === ctx.marcaId ? "selected" : ""}>${escapeHtml(m.nome)}</option>`,
+        `<option value="${m.id}" ${m.id === ctx.marcaId ? "selected" : ""}>${escapeHtml(marcaNomeCompleto(m))}</option>`,
     )
     .join("");
   // Tipos vinculados da marca, combinados (ex.: "USB/USA/USI").
@@ -665,7 +721,7 @@ function viewImagens() {
   const marcaOpts = store.marcas
     .map(
       (m) =>
-        `<option value="${m.id}"${m.id === ctx.marcaId ? " selected" : ""}>${escapeHtml(m.nome)}</option>`,
+        `<option value="${m.id}"${m.id === ctx.marcaId ? " selected" : ""}>${escapeHtml(marcaNomeCompleto(m))}</option>`,
     )
     .join("");
 
@@ -801,18 +857,10 @@ function syncDescricaoToForm() {
   if (el) ui.form.data.descricao = el.value;
 }
 
-// Preserva nome + linhas de tipo (marca) antes de re-renderizar/salvar.
+// Marca e modelo são gerenciados via picker modal em ui.form.data.
+// Tipos são gerenciados via eventos data-tipo-add/del em ui.form.data.
 function syncMarcaForm() {
-  const nomeEl = document.querySelector("#crudNome");
-  if (nomeEl) ui.form.data.nome = nomeEl.value;
-
-  ui.form.data.tipos = [...document.querySelectorAll(".crud-tipo-row")].map(
-    (row) => ({
-      id: row.dataset.tipoId ? Number(row.dataset.tipoId) : null,
-      sigla: row.querySelector(".crud-tipo-sigla").value.trim(),
-      nome: row.querySelector(".crud-tipo-nome").value.trim(),
-    }),
-  );
+  // Nada a sincronizar do DOM — todos os campos são gerenciados via picker.
 }
 
 // ---- Leitura/validação de formulário ----
@@ -862,22 +910,19 @@ function readForm(entity, id) {
 
   if (entity === "marcas") {
     syncMarcaForm();
-    const nome = (ui.form.data.nome || "").trim();
-    if (!nome) {
-      invalidate("#crudNome");
+    const marca = (ui.form.data.marca || "").trim();
+    const modelo = (ui.form.data.modelo || "").trim();
+    if (!marca || !modelo) {
+      showAlert("Selecione uma marca/modelo.");
       return null;
     }
 
     const tipos = ui.form.data.tipos || [];
-    const semSigla = tipos.findIndex((t) => !t.sigla);
-    if (semSigla >= 0) {
-      const inputs = document.querySelectorAll(
-        ".crud-tipo-row .crud-tipo-sigla",
-      );
-      if (inputs[semSigla]) {
-        inputs[semSigla].classList.add("is-invalid");
-        inputs[semSigla].focus();
-      }
+    // Tipos vêm do catálogo via select — sigla é garantida.
+    // Verifica apenas se há ao menos um tipo.
+    if (!tipos.length) {
+      const block = document.querySelector(".crud-apl");
+      if (block) block.classList.add("is-invalid");
       return null;
     }
 
@@ -895,7 +940,7 @@ function readForm(entity, id) {
         : { id: counter++, sigla: t.sigla, nome: t.nome },
     );
 
-    return { id, nome, tipos: tiposFinal };
+    return { id, marca, modelo, tipos: tiposFinal };
   }
 
   return null;
@@ -926,24 +971,14 @@ export function initCrud() {
   dom.btnOpenCrud.addEventListener("click", openModal);
   dom.btnCloseCrud.addEventListener("click", closeModal);
 
-  dom.crudModal.addEventListener("click", (event) => {
-    if (event.target === dom.crudModal) closeModal();
-  });
-
   // Modal de alerta
   const closeAlert = () => { dom.crudAlertModal.hidden = true; };
   dom.btnCloseAlert.addEventListener("click", closeAlert);
   dom.btnAlertOk.addEventListener("click", closeAlert);
-  dom.crudAlertModal.addEventListener("click", (event) => {
-    if (event.target === dom.crudAlertModal) closeAlert();
-  });
 
   // Modal de preview de imagem (expandir)
   const closeImgPreview = () => { dom.crudImgPreviewModal.hidden = true; dom.crudImgPreviewImg.src = ""; };
   dom.btnCloseImgPreview.addEventListener("click", closeImgPreview);
-  dom.crudImgPreviewModal.addEventListener("click", (event) => {
-    if (event.target === dom.crudImgPreviewModal) closeImgPreview();
-  });
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
@@ -1176,7 +1211,7 @@ export function initCrud() {
           .map((it) => it.descricao)
           .join(", ");
         showAlert(
-          `Não é possível excluir "${marca ? marca.nome : ""}": está vinculada aos itens: ${vinculados}.\n\nPara excluir, primeiro desvincule na aba Itens.`,
+          `Não é possível excluir "${marcaNomeCompleto(marca)}": está vinculada aos itens: ${vinculados}.\n\nPara excluir, primeiro desvincule na aba Itens.`,
         );
         return;
       }
@@ -1191,10 +1226,6 @@ export function initCrud() {
 
   // Modal de formulário (Novo / Editar)
   dom.btnCloseCrudForm.addEventListener("click", closeFormModal);
-
-  dom.crudFormModal.addEventListener("click", (event) => {
-    if (event.target === dom.crudFormModal) closeFormModal();
-  });
 
   dom.crudFormBody.addEventListener("click", (event) => {
     if (event.target.closest("[data-crud-cancel]")) {
@@ -1228,12 +1259,126 @@ export function initCrud() {
       return;
     }
 
-    // --- Marca/Modelo: tipos embutidos ---
-    if (event.target.closest("[data-tipo-add]")) {
+    // --- Marca/Modelo: picker unificado ---
+    if (event.target.closest("[data-picker-marca-modelo]")) {
+      openPickerModal({
+        title: '<i class="fa-solid fa-truck-medical"></i> Selecionar marca/modelo',
+        placeholder: "Pesquisar marca ou modelo...",
+        options: MARCA_MODELO_CATALOGO.map((mm) => ({
+          value: `${mm.marca}|${mm.modelo}`,
+          label: `${mm.marca} ${mm.modelo}`,
+          editData: { marca: mm.marca, modelo: mm.modelo },
+        })),
+        footerAction: {
+          label: "Cadastrar nova marca/modelo",
+          icon: "fa-solid fa-plus",
+          fields: [
+            {
+              name: "marca",
+              label: "Marca",
+              placeholder: "Ex.: Ford",
+              suggestions: [...new Set(MARCA_MODELO_CATALOGO.map((mm) => mm.marca))],
+            },
+            { name: "modelo", label: "Modelo", placeholder: "Ex.: Transit" },
+          ],
+          submitLabel: "Adicionar",
+          editSubmitLabel: "Salvar edição",
+          validate: (data, isEdit, originalValue) => {
+            if (isEdit) {
+              const [, origModelo] = originalValue.split("|");
+              // Se não mudou o modelo, tudo certo
+              if (data.modelo.toLowerCase() === origModelo.toLowerCase()) return null;
+            }
+            const modeloExiste = MARCA_MODELO_CATALOGO.some(
+              (mm) => mm.modelo.toLowerCase() === data.modelo.toLowerCase(),
+            );
+            if (modeloExiste) {
+              return {
+                field: "modelo",
+                message: `O modelo "${data.modelo}" já está cadastrado.`,
+              };
+            }
+            return null;
+          },
+        },
+      }).then((selected) => {
+        if (!selected) return;
+
+        // Cadastro novo via formulário
+        if (selected.__new__) {
+          MARCA_MODELO_CATALOGO.push({ marca: selected.marca, modelo: selected.modelo });
+          ui.form.data.marca = selected.marca;
+          ui.form.data.modelo = selected.modelo;
+          // Novo — ainda sem tipos vinculados
+          ui.form.data.tipos = [];
+          rerenderForm();
+          return;
+        }
+
+        // Edição via formulário
+        if (selected.__edit__) {
+          const original = selected.originalValue; // ex: "Ford|Transit"
+          const [origMarca, origModelo] = original.split("|");
+
+          // Atualiza no catálogo
+          const item = MARCA_MODELO_CATALOGO.find((m) => m.marca === origMarca && m.modelo === origModelo);
+          if (item) {
+            item.marca = selected.marca;
+            item.modelo = selected.modelo;
+          }
+
+          // Se a edição for no mesmo item que estava selecionado no formulário, atualiza-o
+          if (ui.form.data.marca === origMarca && ui.form.data.modelo === origModelo) {
+            ui.form.data.marca = selected.marca;
+            ui.form.data.modelo = selected.modelo;
+          }
+
+          rerenderForm();
+          return;
+        }
+
+        // Seleção direta: carregar dados da marca/modelo existente
+        const [marca, modelo] = selected.split("|");
+        ui.form.data.marca = marca;
+        ui.form.data.modelo = modelo;
+
+        // Buscar tipos vinculados a esta marca/modelo no store
+        const registroExistente = store.marcas.find(
+          (m) => m.marca === marca && m.modelo === modelo,
+        );
+        ui.form.data.tipos = registroExistente
+          ? (registroExistente.tipos || []).map((t) => ({ ...t }))
+          : [];
+
+        rerenderForm();
+      });
+      return;
+    }
+
+    // --- Marca/Modelo: abrir picker modal de tipos ---
+    if (event.target.closest("[data-tipo-picker]")) {
       syncMarcaForm();
-      const lista = ui.form.data.tipos || (ui.form.data.tipos = []);
-      lista.push({ id: null, sigla: "", nome: "" });
-      rerenderForm();
+      const siglasAdded = new Set((ui.form.data.tipos || []).map((t) => t.sigla));
+      const available = TIPOS_CATALOGO.filter((t) => !siglasAdded.has(t.sigla));
+      if (!available.length) return;
+
+      openPickerModal({
+        title: '<i class="fa-solid fa-tags"></i> Selecionar tipo',
+        placeholder: "Pesquisar tipo...",
+        options: available.map((t) => ({
+          value: t.sigla,
+          label: t.nome,
+          badge: t.sigla,
+        })),
+      }).then((selectedValue) => {
+        if (!selectedValue) return;
+        const catalogo = TIPOS_CATALOGO.find((t) => t.sigla === selectedValue);
+        if (!catalogo) return;
+        const lista = ui.form.data.tipos || (ui.form.data.tipos = []);
+        if (lista.some((t) => t.sigla === selectedValue)) return;
+        lista.push({ id: null, sigla: catalogo.sigla, nome: catalogo.nome });
+        rerenderForm();
+      });
       return;
     }
 
@@ -1243,7 +1388,7 @@ export function initCrud() {
       const index = Number(tipoDel.dataset.tipoDel);
       const tipo = ui.form.data.tipos[index];
       if (tipo && tipo.id != null && itensComTipo(tipo.id) > 0) {
-        const marcaNomeAtual = ui.form.data.nome || "";
+        const marcaNomeAtual = [ui.form.data.marca, ui.form.data.modelo].filter(Boolean).join(" ") || "";
         const vinculados = store.itens
           .filter((it) => (it.aplicacoes || []).includes(tipo.id))
           .map((it) => it.descricao)

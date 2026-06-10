@@ -97,6 +97,7 @@
 .crud-btn-new {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 7px;
     min-height: 34px;
     border-color: #2e8b3e;
@@ -167,6 +168,16 @@
 
 .crud-field-wide {
     flex: 2 1 240px;
+}
+
+.crud-field-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.crud-field-row .crud-field {
+    flex: 1 1 0;
 }
 
 .crud-field label {
@@ -346,9 +357,169 @@
     box-shadow: 0 0 0 3px rgba(226, 27, 27, 0.14);
 }
 
+/* Botão de campo que abre picker modal */
+.crud-picker-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--text);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.crud-picker-field:hover {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(34, 103, 168, 0.1);
+}
+
+.crud-picker-field i {
+    font-size: 0.7rem;
+    color: #aab1bd;
+}
+
+.crud-picker-placeholder {
+    color: #aab1bd;
+    font-weight: 400;
+}
+
 .crud-btn-add-tipo {
-    align-self: flex-start;
-    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    min-height: 36px;
+    border: 1px dashed var(--blue);
+    border-radius: 7px;
+    background: transparent;
+    color: var(--blue);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.crud-btn-add-tipo:hover:not(:disabled) {
+    background: var(--blue);
+    color: #fff;
+}
+
+.crud-btn-add-tipo:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Picker customizado de tipos */
+.crud-tipo-picker {
+    position: relative;
+}
+
+.crud-tipo-picker-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px dashed var(--line);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.crud-tipo-picker-trigger:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: #f8fbff;
+    color: var(--text);
+}
+
+.crud-tipo-picker-trigger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.crud-tipo-picker-trigger i {
+    font-size: 0.7rem;
+    opacity: 0.5;
+}
+
+.crud-tipo-picker-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 100;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    overflow: hidden;
+}
+
+.crud-tipo-picker-search {
+    display: block;
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    background: #fafbfc;
+    color: var(--text);
+    font-size: 0.85rem;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.crud-tipo-picker-search:focus {
+    background: #fff;
+    border-bottom-color: var(--blue);
+}
+
+.crud-tipo-picker-list {
+    max-height: 220px;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    overflow-y: auto;
+}
+
+.crud-tipo-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.84rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.crud-tipo-option:hover {
+    background: #eef4fb;
+}
+
+.crud-tipo-option[hidden] {
+    display: none;
+}
+
+.crud-tipo-picker-empty {
+    padding: 20px;
+    color: var(--muted);
+    font-size: 0.84rem;
+    text-align: center;
 }
 
 .crud-apl-marca {
