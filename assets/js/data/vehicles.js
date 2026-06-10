@@ -37,4 +37,13 @@ export const vehicleTypesConfig = [
     crudMarcaId: 4,
     crudTipoIds: [9],
   },
+  {
+    id: "peugeot-expert-vop",
+    label: "Peugeot Expert (VOP)",
+    folder: "imagens/PEUGEOT-EXPERT-VOP",
+    prefix: "PEUGEOT-EXPERT",
+    extensions: ["png", "jpg"],
+    crudMarcaId: 5,
+    crudTipoIds: [10],
+  },
 ];

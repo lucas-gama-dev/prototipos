@@ -18,7 +18,7 @@ const KEYS = {
 };
 
 // Versao dos dados-semente. Ao incrementar, os seeds sao reaplicados.
-const SEED_VERSION = 9;
+const SEED_VERSION = 11;
 const SEED_VERSION_KEY = "crud_seed_version";
 
 function read(key) {
@@ -73,6 +73,11 @@ function seedMarcas() {
       nome: "Yamaha Versys",
       tipos: [{ id: 9, sigla: "MOTO", nome: "Motolância" }],
     },
+    {
+      id: 5,
+      nome: "Peugeot Expert",
+      tipos: [{ id: 10, sigla: "VOP", nome: "Viatura de Operações" }],
+    },
   ];
 }
 
@@ -82,6 +87,7 @@ function seedItens() {
   const AMB = [1, 2, 3, 4, 5, 6]; // Mercedes + Renault (USB/USA/USI)
   const SW4 = [7, 8];              // Toyota SW4 (VIR/VIM)
   const MOTO = [9];                // Yamaha Versys (MOTO)
+  const VOP = [10];                // Peugeot Expert (VOP)
   const AMB_SW4 = [...AMB, ...SW4]; // Compartilhados ambulância + SW4
 
   // IDs de itens da ambulância que se aplicam TAMBÉM ao SW4
@@ -106,10 +112,36 @@ function seedItens() {
     34, // Porta Dianteira Direita
   ];
 
-  // Itens das ambulâncias (34), com os compartilhados recebendo SW4 nos tipos
+  // IDs de itens da ambulância que se aplicam TAMBÉM à Peugeot Expert VOP
+  // (van similar às ambulâncias: mesmas peças estruturais)
+  const idsVOP = [
+    1,  // Asa Dianteira
+    2,  // Parabrisa
+    3,  // Capô
+    4,  // Farol Dianteiro Direito
+    5,  // Grade Frontal
+    6,  // Farol Dianteiro Esquerdo
+    7,  // Parachoque
+    8,  // Lataria Dianteira
+    13, // Retrovisor Esquerdo
+    14, // Porta Dianteira Esquerda
+    15, // Lataria Lateral Esquerda
+    17, // Luz Patrulheiro
+    19, // Camera
+    20, // Porta Traseira Esquerda
+    21, // Porta Traseira Direita
+    22, // Farol Traseiro Esquerdo
+    25, // Farol Traseiro Direito
+    31, // Porta Lateral
+    33, // Retrovisor Direito
+    34, // Porta Dianteira Direita
+  ];
+
+  // Itens das ambulâncias (34), com compartilhamento para SW4 e VOP
   const itensAmbulancias = defaultChecklist.map((point, index) => {
     const id = index + 1;
-    const tipos = idsCompartilhados.includes(id) ? AMB_SW4.slice() : AMB.slice();
+    let tipos = idsCompartilhados.includes(id) ? AMB_SW4.slice() : AMB.slice();
+    if (idsVOP.includes(id)) tipos.push(...VOP);
     return { id, descricao: point.descricao, aplicacoes: tipos };
   });
 
