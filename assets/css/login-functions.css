@@ -1,0 +1,89 @@
+/* Estilos para Funções de Login */
+
+/* Estilo da mensagem de erro de credenciais (classe error-message) */
+.error-message {
+  background-color: rgba(var(--color-danger-500-rgb, 239, 68, 68), 0.1) !important;
+  border: 1px solid rgba(var(--color-danger-500-rgb, 239, 68, 68), 0.3) !important;
+  color: var(--color-danger-600) !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.375rem !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 1rem !important;
+  gap: 0.5rem !important;
+}
+
+/* Tema escuro para error-message */
+.dark-theme .error-message {
+  background-color: rgba(var(--color-danger-600-rgb, 220, 38, 38), 0.1) !important;
+  border-color: rgba(var(--color-danger-600-rgb, 220, 38, 38), 0.3) !important;
+  color: var(--color-danger-200) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+}
+
+/* Estilos para o ícone SVG dentro da mensagem de erro */
+.error-message svg {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Estados do contador de caracteres */
+.text-gray-500 {
+  color: var(--color-neutral-500);
+}
+
+.text-yellow-500 {
+  color: var(--color-warning-500);
+}
+
+.text-red-500 {
+  color: var(--color-danger-500);
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+html.dark-theme .char-counter.text-yellow-500 {
+  color: var(--color-warning-400);
+}
+
+html.dark-theme .char-counter.text-red-500 {
+  color: var(--color-danger-400);
+}
+
+/* Estados do botão de login */
+.opacity-100 {
+  opacity: 1;
+}
+
+.opacity-75 {
+  opacity: 0.75;
+}
+
+.opacity-0 {
+  opacity: 0;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+/* Estados de loading */
+.hidden {
+  display: none;
+}
+
+/* Transições suaves */
+.error-message,
+.opacity-100,
+.opacity-75,
+.opacity-0 {
+  transition: all 0.3s ease;
+}

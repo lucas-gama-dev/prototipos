@@ -1,0 +1,186 @@
+.theme-toggle-wrapper {
+  position: relative;
+  z-index: 9999;
+  width: 70px;
+  height: 35px;
+}
+
+.theme-toggle {
+  position: absolute;
+  opacity: 0;
+  width: 70px;
+  height: 35px;
+  top: 0;
+  left: 0;
+  margin: 0;
+  cursor: pointer;
+  z-index: 10000;
+}
+
+.theme-toggle-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 70px;
+  height: 35px;
+  background-color: var(--theme-toggle-bg, #e8e8e8);
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px;
+  transition: background-color 0.3s ease;
+  box-shadow: var(
+    --theme-toggle-shadow,
+    0 2px 5px rgba(0, 0, 0, 0.1),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.1)
+  );
+  cursor: pointer;
+}
+
+.theme-toggle-label:before {
+  content: "";
+  position: absolute;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  top: 50%;
+  left: 5px;
+  transform: translateY(-50%);
+  background: var(
+    --theme-toggle-thumb,
+    linear-gradient(180deg, #ffffff, #f0f0f0)
+  );
+  box-shadow: var(--theme-toggle-thumb-shadow, 0 2px 4px rgba(0, 0, 0, 0.2));
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.3s ease;
+}
+
+.theme-toggle:checked + .theme-toggle-label {
+  background-color: var(--theme-toggle-bg, #383838);
+  box-shadow: var(
+    --theme-toggle-shadow,
+    0 3px 8px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.06),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.4)
+  );
+}
+
+.theme-toggle:checked + .theme-toggle-label:before {
+  transform: translate(31px, -50%);
+  background: var(
+    --theme-toggle-thumb,
+    linear-gradient(180deg, #2c2c2c, #404040)
+  );
+  box-shadow: var(--theme-toggle-thumb-shadow, 0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+/* Estado System */
+.theme-toggle-label.system-theme {
+  background-color: var(--system-theme-bg, #e8e8e8);
+  transition: background-color 0.3s ease;
+}
+
+.theme-toggle-label.system-theme:before {
+  background: var(
+    --system-theme-thumb,
+    linear-gradient(180deg, #ffffff, #f0f0f0)
+  );
+  transform: translateY(-50%);
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.3s ease;
+}
+
+.theme-toggle-label.system-theme.system-dark {
+  background-color: #383838;
+}
+
+.theme-toggle-label.system-theme.system-dark:before {
+  transform: translate(31px, -50%);
+  background: linear-gradient(180deg, #2c2c2c, #404040);
+}
+
+/* Ícones dentro do toggle */
+.slider-icons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 7px;
+  position: relative;
+  pointer-events: none;
+}
+
+.sun-icon,
+.moon-icon {
+  width: 14px;
+  height: 14px;
+  transition: all 0.15s ease;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.theme-toggle-wrapper .sun-icon {
+  stroke: var(--theme-sun-icon-color, #f39c12);
+  fill: none;
+  opacity: var(--theme-sun-icon-opacity, 1);
+  transform-origin: center;
+  transform: scale(1.1);
+}
+
+.theme-toggle-wrapper .moon-icon {
+  stroke: var(--theme-moon-icon-color, #666);
+  fill: none;
+  opacity: var(--theme-moon-icon-opacity, 0.5);
+  transform-origin: center;
+}
+
+/* Estados do tema escuro */
+.theme-toggle:checked + .theme-toggle-label .sun-icon,
+.theme-toggle-label.system-theme.system-dark .sun-icon {
+  stroke: var(--theme-sun-icon-color, #9ca3af);
+  opacity: var(--theme-sun-icon-opacity, 0.7);
+  transform: scale(0.9) rotate(90deg);
+}
+
+.theme-toggle:checked + .theme-toggle-label .moon-icon,
+.theme-toggle-label.system-theme.system-dark .moon-icon {
+  stroke: var(--theme-moon-icon-color, #ffd700);
+  opacity: var(--theme-moon-icon-opacity, 1);
+  transform: scale(1.1);
+}
+
+/* Efeitos hover */
+.theme-toggle-label:hover {
+  box-shadow: var(
+    --theme-toggle-shadow-hover,
+    0 3px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.1)
+  );
+}
+
+.theme-toggle-label:hover:before {
+  box-shadow: var(--theme-toggle-thumb-shadow, 0 3px 6px rgba(0, 0, 0, 0.25));
+}
+
+/* Animação suave para todos os elementos */
+.theme-toggle-label * {
+  transition: all 0.15s ease;
+}
+
+/* Estilos específicos para posicionamento fixo */
+.fixed.top-5.right-5 {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 1000;
+}
