@@ -776,6 +776,54 @@
     justify-content: flex-end;
 }
 
+/* Modal de confirmação */
+.modal-overlay-confirm {
+    z-index: 1200;
+}
+
+.modal-box-confirm {
+    max-width: 400px;
+}
+
+.modal-box-confirm .modal-header h3 {
+    color: var(--blue);
+}
+
+.crud-confirm-body {
+    padding: 20px 24px 24px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.crud-confirm-body p {
+    margin: 0 0 18px;
+}
+
+.crud-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.crud-btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    background: #c0392b;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.crud-btn-danger:hover {
+    background: #a93226;
+}
+
 /* ---- Aba Imagens ---- */
 
 .crud-img-grid {

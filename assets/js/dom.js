@@ -34,4 +34,9 @@ export const dom = {
   crudImgPreviewModal: document.querySelector("#crudImgPreviewModal"),
   crudImgPreviewImg: document.querySelector("#crudImgPreviewImg"),
   btnCloseImgPreview: document.querySelector("#btnCloseImgPreview"),
+  crudConfirmModal: document.querySelector("#crudConfirmModal"),
+  crudConfirmMsg: document.querySelector("#crudConfirmMsg"),
+  btnCloseConfirm: document.querySelector("#btnCloseConfirm"),
+  btnConfirmCancel: document.querySelector("#btnConfirmCancel"),
+  btnConfirmOk: document.querySelector("#btnConfirmOk"),
 };

@@ -884,6 +884,20 @@ function showAlert(msg) {
   dom.crudAlertModal.hidden = false;
 }
 
+let _confirmResolve = null;
+
+function showConfirm(msg) {
+  dom.crudConfirmMsg.style.whiteSpace = "pre-line";
+  dom.crudConfirmMsg.textContent = msg;
+  dom.crudConfirmModal.hidden = false;
+  return new Promise((resolve) => { _confirmResolve = resolve; });
+}
+
+function closeConfirm(result) {
+  dom.crudConfirmModal.hidden = true;
+  if (_confirmResolve) { _confirmResolve(result); _confirmResolve = null; }
+}
+
 function readForm(entity, id) {
   if (entity === "itens") {
     const descricao = fieldValue("#crudDescricao");
@@ -976,6 +990,11 @@ export function initCrud() {
   dom.btnCloseAlert.addEventListener("click", closeAlert);
   dom.btnAlertOk.addEventListener("click", closeAlert);
 
+  // Modal de confirmação
+  dom.btnCloseConfirm.addEventListener("click", () => closeConfirm(false));
+  dom.btnConfirmCancel.addEventListener("click", () => closeConfirm(false));
+  dom.btnConfirmOk.addEventListener("click", () => closeConfirm(true));
+
   // Modal de preview de imagem (expandir)
   const closeImgPreview = () => { dom.crudImgPreviewModal.hidden = true; dom.crudImgPreviewImg.src = ""; };
   dom.btnCloseImgPreview.addEventListener("click", closeImgPreview);
@@ -983,6 +1002,7 @@ export function initCrud() {
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
     if (!dom.crudImgPreviewModal.hidden) closeImgPreview();
+    else if (!dom.crudConfirmModal.hidden) closeConfirm(false);
     else if (!dom.crudAlertModal.hidden) closeAlert();
     else if (!dom.crudFormModal.hidden) closeFormModal();
     else if (!dom.crudModal.hidden) closeModal();
@@ -1216,10 +1236,12 @@ export function initCrud() {
         return;
       }
 
-      if (window.confirm("Excluir este registro?")) {
-        remove(entity, id);
-        render();
-      }
+      showConfirm("Excluir este registro?").then((confirmed) => {
+        if (confirmed) {
+          remove(entity, id);
+          render();
+        }
+      });
       return;
     }
   });

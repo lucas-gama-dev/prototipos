@@ -253,6 +253,29 @@
                         </div>
                     </div>
 
+                    <!-- Modal de confirmação (substitui window.confirm) -->
+                    <div id="crudConfirmModal" class="modal-overlay modal-overlay-confirm" hidden>
+                        <div class="modal-box modal-box-crud modal-box-confirm">
+                            <div class="modal-header">
+                                <h3><i class="fa-solid fa-circle-question"></i> Confirmar</h3>
+                                <button id="btnCloseConfirm" class="modal-close" type="button" aria-label="Fechar" title="Fechar">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div class="crud-confirm-body">
+                                <p id="crudConfirmMsg"></p>
+                                <div class="crud-confirm-actions">
+                                    <button id="btnConfirmCancel" class="crud-btn-cancel" type="button">
+                                        <i class="fa-solid fa-xmark"></i> Cancelar
+                                    </button>
+                                    <button id="btnConfirmOk" class="crud-btn-danger" type="button">
+                                        <i class="fa-solid fa-trash-can"></i> Excluir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Modal de preview de imagem (expandir) -->
                     <div id="crudImgPreviewModal" class="modal-overlay modal-overlay-imgpreview" hidden>
                         <div class="modal-box-imgpreview">
