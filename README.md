@@ -1,7 +1,7 @@
 # 🚑 MAPEAMENTO CARTESIANO CHECKLIST NUTRAN
 
 Ferramenta de **mapeamento cartesiano** para checklist visual de viaturas do SAMU. Permite posicionar pontos de inspeção sobre imagens reais dos veículos usando coordenadas percentuais (0–100).
-![Protótipo](./PROTOTIPO-DE-MAPEAMENTO-CARTESIANO.png)
+![Protótipo](./imagens/PROTOTIPO-DE-MAPEAMENTO-CARTESIANO.png)
 
 ## ✨ Funcionalidades
 
