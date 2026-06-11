@@ -31,6 +31,10 @@
     }
   };
 
+  // ─── DEV MODE ─────────────────────────────────────────────
+  // Quando true, o banner SEMPRE reaparece ao atualizar a página
+  const DEV_MODE = true;
+
   // ─── Cookie Consent ──────────────────────────────────────
   class CookieConsent {
     constructor() {
@@ -39,7 +43,7 @@
     }
 
     init() {
-      this.cookieConsent = localStorage.getItem('cookieConsent');
+      this.cookieConsent = DEV_MODE ? null : localStorage.getItem('cookieConsent');
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => this.initializeBanner());
       } else {
@@ -48,7 +52,7 @@
     }
 
     initializeBanner() {
-      // Não mostra se já consentiu
+      // Não mostra se já consentiu (exceto em DEV_MODE)
       if (this.cookieConsent) return;
 
       const banner = document.createElement('div');
