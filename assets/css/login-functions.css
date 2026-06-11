@@ -11,7 +11,7 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  margin-bottom: 1rem !important;
+  margin-bottom: 0.8rem !important;
   gap: 0.5rem !important;
 }
 
@@ -86,4 +86,83 @@ html.dark-theme .char-counter.text-red-500 {
 .opacity-75,
 .opacity-0 {
   transition: all 0.3s ease;
+}
+
+/* ========================================
+   TOAST DE ERRO DE LOGIN (Segurança)
+   Substitui a exibição de JSON bruto
+   ======================================== */
+
+.login-error-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 0.5rem;
+  background-color: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  color: #b91c1c;
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.login-error-toast--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.login-error-toast--hiding {
+  animation: login-error-fadeout 0.3s ease forwards;
+}
+
+@keyframes login-error-fadeout {
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.login-error-toast__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background-color: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.login-error-toast__message {
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Tema escuro */
+html.dark-theme .login-error-toast {
+  background-color: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.25);
+  color: #fca5a5;
+}
+
+html.dark-theme .login-error-toast__icon {
+  background-color: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+/* Estado disabled do botão durante requisição */
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
 }
