@@ -1,0 +1,701 @@
+/* Estilos do Banner de Cookies */
+
+/* Container principal do banner */
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0 -3px 15px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  z-index: 9999;
+  transition: all 0.3s ease;
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.cookie-banner.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+#cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0 -3px 15px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  z-index: 40;
+  transition: background-color 0.3s ease;
+}
+
+/* Tema escuro para o banner */
+html.dark-theme .cookie-banner,
+html.dark-theme #cookie-banner {
+  background-color: rgb(7, 7, 7);
+  color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 -3px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Container do conteúdo do banner */
+.cookie-banner-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .cookie-banner-container {
+    flex-direction: row;
+  }
+}
+
+/* Texto do banner */
+.cookie-banner-text {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+html.dark-theme .cookie-banner-text {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Link da política de privacidade */
+.cookie-banner-link {
+  color: #eb5224;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.cookie-banner-link:hover {
+  color: #ce1313;
+}
+
+/* Container dos botões */
+.cookie-banner-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Botão de personalizar */
+.cookie-banner-button {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  color: #4b5563;
+  background-color: transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+html.dark-theme .cookie-banner-button {
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.cookie-banner-button:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+html.dark-theme .cookie-banner-button:hover {
+  background-color: rgba(243, 244, 246, 0.1);
+}
+
+/* Botão de aceitar */
+.cookie-banner-accept {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  color: white;
+  background: linear-gradient(45deg, #eb5224, #ce1313);
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.cookie-banner-accept:hover {
+  opacity: 0.9;
+}
+
+/* Estilos específicos para o modal de cookies */
+#cookie-modal {
+  position: fixed;
+  top: var(--modal-safe-area-top, var(--header-height, 60px));
+  bottom: var(--modal-safe-area-bottom, 0);
+  left: 0;
+  right: 0;
+  z-index: 9999 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 2vh, 2.5rem) 1rem 1rem;
+}
+
+.cookie-modal-bg {
+  background-color: var(--color-card-bg);
+  border-radius: 0.5rem;
+  max-width: 42rem;
+  width: 100%;
+  padding: 1.5rem;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: relative;
+  z-index: 9999 !important;
+  border: 1px solid var(--modal-border-color);
+}
+
+#modal-overlay {
+  position: fixed;
+  top: var(--modal-safe-area-top, var(--header-height, 60px));
+  bottom: var(--modal-safe-area-bottom, 0);
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9998 !important;
+}
+
+@media (max-width: 640px) {
+  .cookie-modal-bg {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+}
+
+/* Tema escuro para o modal - mesma cor do container de login levemente transparente */
+html.dark-theme .cookie-modal-bg,
+body html.dark-theme .cookie-modal-bg,
+html.dark-theme body .cookie-modal-bg,
+html.dark-theme .cookie-modal-bg,
+body.dark-theme .cookie-modal-bg,
+html.dark-theme body .cookie-modal-bg {
+  background-color: rgba(15, 15, 15, 0.95) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid var(--modal-border-color) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Modal de configurações de cookies */
+.cookie-settings-modal {
+  position: fixed;
+  top: calc(50% + var(--modal-safe-area-top, var(--header-height, 60px)) / 2);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 600px;
+  max-height: calc(100vh - var(--modal-safe-area-top, var(--header-height, 60px)) - 2rem);
+  background-color: var(--color-card-bg);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 2000; /* Aumentado significativamente para garantir que fique acima */
+  border: 1px solid var(--modal-border-color);
+}
+
+/* Overlay do modal */
+.cookie-settings-overlay {
+  position: fixed;
+  top: var(--modal-safe-area-top, var(--header-height, 60px));
+  left: 0;
+  right: 0;
+  bottom: var(--modal-safe-area-bottom, 0);
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1999; /* Aumentado para ficar entre o banner e o modal */
+}
+
+@media (max-width: 640px) {
+  .cookie-settings-modal {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  /* Botão Salvar Preferências fixo no mobile */
+  .cookie-settings-save {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 1rem;
+    margin: 0 -1.5rem -1.5rem -1.5rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Tema escuro - mesma cor do container de login levemente transparente */
+html.dark-theme .cookie-settings-modal,
+body html.dark-theme .cookie-settings-modal,
+html.dark-theme body .cookie-settings-modal,
+html.dark-theme .cookie-settings-modal,
+body.dark-theme .cookie-settings-modal,
+html.dark-theme body .cookie-settings-modal {
+  background-color: rgba(15, 15, 15, 0.95) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid var(--modal-border-color) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark-theme .cookie-settings-save {
+  background-color: rgba(15, 15, 15, 0.95) !important;
+}
+
+/* Tema claro para o modal - levemente transparente */
+.cookie-modal-bg {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: rgba(0, 0, 0, 0.95) !important;
+  border: 1px solid var(--modal-border-color) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Tema claro para o modal de configurações - levemente transparente */
+.cookie-settings-modal {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: rgba(0, 0, 0, 0.95) !important;
+  border: 1px solid var(--modal-border-color) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Tema claro para o botão salvar - levemente transparente */
+.cookie-settings-save {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.space-y-6 {
+  margin-top: 0.75rem;
+}
+
+.space-y-6 > * + * {
+  margin-top: 0.75rem !important;
+}
+
+.cookie-card,
+.cookie-card-disabled {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #e8eaed !important;
+  border-radius: 0.375rem !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.cookie-card:hover {
+  background-color: #d8dce1 !important;
+}
+
+.cookie-card:last-child,
+.cookie-card-disabled:last-child {
+  margin-bottom: 0;
+}
+
+.cookie-card h3,
+.cookie-card-disabled h3 {
+  margin-bottom: 0.25rem;
+}
+
+.cookie-card p,
+.cookie-card-disabled p {
+  margin-top: 0.25rem;
+}
+
+/* Ajustes para o modal de configurações de cookies */
+
+/* Tema escuro para os cards de cookies */
+html.dark-theme .cookie-card,
+html.dark-theme .cookie-card-disabled {
+  background-color: rgba(55, 65, 81, 0.3) !important;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+html.dark-theme .cookie-card:hover {
+  background-color: rgba(55, 65, 81, 0.5) !important;
+}
+
+html.dark-theme .cookie-card h3,
+html.dark-theme .cookie-card-disabled h3 {
+  color: #fff;
+}
+
+/* Utilitários de cor para o modal - garantem contraste consistente mesmo sem Tailwind */
+.cookie-modal-bg .text-gray-900,
+.cookie-modal-bg .text-gray-800,
+.cookie-modal-bg .dark-theme\:text-white,
+.cookie-modal-bg .dark-theme\:text-gray-100,
+.cookie-modal-bg .dark-theme\:text-gray-200 {
+  color: var(--color-text-primary);
+}
+
+.cookie-modal-bg .text-gray-600,
+.cookie-modal-bg .text-gray-400,
+.cookie-modal-bg .dark-theme\:text-gray-300,
+.cookie-modal-bg .dark-theme\:text-gray-400 {
+  color: var(--color-text-secondary);
+}
+
+.cookie-modal-bg .bg-gray-200,
+.cookie-modal-bg .dark-theme\:bg-gray-600 {
+  background-color: var(--color-bg-muted);
+  color: var(--color-text-primary);
+}
+
+.cookie-modal-bg .border-gray-200,
+.cookie-modal-bg .dark-theme\:border-gray-700 {
+  border-color: var(--color-border-muted);
+}
+
+html.dark-theme .cookie-modal-bg {
+  color: var(--color-text-primary);
+}
+
+/* Estilos específicos para o banner de cookies */
+.cookie-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.cookie-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.cookie-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1f2937;
+}
+
+html.dark-theme .cookie-title {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.cookie-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: color 0.2s;
+}
+
+.cookie-close:hover {
+  color: #374151;
+}
+
+html.dark-theme .cookie-close {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+html.dark-theme .cookie-close:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.cookie-message {
+  margin-bottom: 0.8rem;
+}
+
+.cookie-message p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+html.dark-theme .cookie-message p {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.cookie-policy-link {
+  color: #eb5224;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.cookie-policy-link:hover {
+  text-decoration: underline;
+}
+
+.cookie-details {
+  margin-bottom: 0.8rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+html.dark-theme .cookie-details {
+  background-color: rgba(55, 65, 81, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.cookie-option {
+  margin-bottom: 0.8rem;
+}
+
+.cookie-option:last-child {
+  margin-bottom: 0;
+}
+
+.cookie-option label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: #374151;
+}
+
+html.dark-theme .cookie-option label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.cookie-option input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #eb5224;
+}
+
+.cookie-required {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: normal;
+}
+
+.cookie-option-description {
+  margin: 0.25rem 0 0 1.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+html.dark-theme .cookie-option-description {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.cookie-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.cookie-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cookie-btn-accept-all {
+  background: linear-gradient(45deg, #eb5224, #ce1313);
+  color: white;
+}
+
+.cookie-btn-accept-all:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.cookie-btn-settings {
+  background-color: transparent;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.cookie-btn-settings:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+html.dark-theme .cookie-btn-settings {
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+html.dark-theme .cookie-btn-settings:hover {
+  background-color: rgba(243, 244, 246, 0.1);
+}
+
+.cookie-btn-decline {
+  background-color: #6b7280;
+  color: white;
+}
+
+.cookie-btn-decline:hover {
+  background-color: #4b5563;
+}
+
+.cookie-btn-save {
+  background: linear-gradient(45deg, #eb5224, #ce1313);
+  color: white;
+}
+
+.cookie-btn-save:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.cookie-form {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .cookie-actions {
+    flex-direction: column;
+  }
+
+  .cookie-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Efeito blur quando modal está aberto - aplicar apenas ao conteúdo principal */
+body.modal-blur > *:not(#cookie-modal) {
+  filter: blur(3px);
+  transition: filter 0.3s ease;
+}
+
+/* Garantir que o modal não seja afetado pelo blur */
+#cookie-modal {
+  filter: none !important;
+  z-index: 10000;
+}
+
+/* Evitar que o scrollbar do body apareça enquanto o modal de cookies está aberto */
+body.modal-blur {
+  overflow: hidden;
+}
+
+/* Animações para o modal de cookies */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#cookie-modal {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* ======================================
+   Estilos do Toggle (Checkbox Personalizado)
+   ====================================== */
+
+/* Estilo personalizado para os checkboxes */
+.toggle-checkbox {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  width: 3.5rem !important;
+  height: 2rem !important;
+  background-color: #e5e7eb !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  padding: 0 !important;
+  color: transparent !important;
+  background-image: none !important;
+  flex-shrink: 0;
+}
+
+/* Remove a borda azul padrão do navegador ao focar */
+.toggle-checkbox:focus {
+  outline: none !important;
+  outline-offset: 0 !important;
+  border: none !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  --tw-ring-offset-width: 0 !important;
+  --tw-ring-offset-color: transparent !important;
+  --tw-ring-color: transparent !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-shadow: 0 0 #0000 !important;
+}
+
+.toggle-checkbox:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.toggle-checkbox:checked {
+  background: linear-gradient(to right, #3b82f6, #2563eb) !important;
+  border-color: transparent !important;
+}
+
+.toggle-checkbox:checked:focus-visible {
+  box-shadow: none !important;
+}
+
+.toggle-checkbox:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.toggle-checkbox::after {
+  content: '';
+  position: absolute;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background-color: white;
+  top: 50%;
+  left: 0.3rem;
+  transform: translateY(-50%);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-checkbox:checked::after {
+  transform: translateY(-50%) translateX(1.55rem);
+}
+
+.toggle-checkbox:hover::after {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para tema escuro */
+html.dark-theme .toggle-checkbox {
+  background-color: #374151;
+}
+
+html.dark-theme .toggle-checkbox:focus-visible {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+html.dark-theme .toggle-checkbox:checked:focus-visible {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
+html.dark-theme .toggle-checkbox::after {
+  background-color: #e5e7eb;
+}
