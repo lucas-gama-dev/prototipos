@@ -7,7 +7,7 @@ Repositório central de protótipos desenvolvidos pelo núcleo de inovação.
 | Protótipo | Descrição | Status |
 | --- | --- | --- |
 | [NUTRAN-CHECKLIST](./NUTRAN-CHECKLIST/) | Mapeamento cartesiano para checklist visual de viaturas | ✅ Ativo |
-| ROTA-GPS | *(em breve)* | 🔜 Planejado |
+| [ROTA-GPS](./ROTA-GPS/) | Sistema de rotas e geolocalização para viaturas | ✅ Ativo |
 
 ## 🗂️ Estrutura
 
