@@ -1,20 +1,22 @@
 .theme-toggle-wrapper {
   position: relative;
   z-index: 9999;
-  width: 70px;
-  height: 35px;
+  width: 80px;
+  height: 45px;
+  box-sizing: content-box;
 }
 
 .theme-toggle {
   position: absolute;
   opacity: 0;
-  width: 70px;
-  height: 35px;
+  width: 80px !important;
+  height: 45px !important;
   top: 0;
   left: 0;
   margin: 0;
   cursor: pointer;
   z-index: 10000;
+  box-sizing: content-box;
 }
 
 .theme-toggle-label {
@@ -37,10 +39,11 @@
     inset 0 -1px 2px rgba(0, 0, 0, 0.1)
   );
   cursor: pointer;
+  box-sizing: content-box;
 }
 
 .theme-toggle-label:before {
-  content: "";
+  content: '';
   position: absolute;
   width: 29px;
   height: 29px;
@@ -48,14 +51,12 @@
   top: 50%;
   left: 5px;
   transform: translateY(-50%);
-  background: var(
-    --theme-toggle-thumb,
-    linear-gradient(180deg, #ffffff, #f0f0f0)
-  );
+  background: var(--theme-toggle-thumb, linear-gradient(180deg, #ffffff, #f0f0f0));
   box-shadow: var(--theme-toggle-thumb-shadow, 0 2px 4px rgba(0, 0, 0, 0.2));
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     background 0.3s ease;
+  box-sizing: content-box;
 }
 
 .theme-toggle:checked + .theme-toggle-label {
@@ -69,11 +70,8 @@
 }
 
 .theme-toggle:checked + .theme-toggle-label:before {
-  transform: translate(31px, -50%);
-  background: var(
-    --theme-toggle-thumb,
-    linear-gradient(180deg, #2c2c2c, #404040)
-  );
+  transform: translate(40px, -50%);
+  background: var(--theme-toggle-thumb, linear-gradient(180deg, #2c2c2c, #404040));
   box-shadow: var(--theme-toggle-thumb-shadow, 0 2px 4px rgba(0, 0, 0, 0.4));
 }
 
@@ -84,10 +82,7 @@
 }
 
 .theme-toggle-label.system-theme:before {
-  background: var(
-    --system-theme-thumb,
-    linear-gradient(180deg, #ffffff, #f0f0f0)
-  );
+  background: var(--system-theme-thumb, linear-gradient(180deg, #ffffff, #f0f0f0));
   transform: translateY(-50%);
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -99,7 +94,7 @@
 }
 
 .theme-toggle-label.system-theme.system-dark:before {
-  transform: translate(31px, -50%);
+  transform: translate(40px, -50%);
   background: linear-gradient(180deg, #2c2c2c, #404040);
 }
 
