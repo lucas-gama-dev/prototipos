@@ -503,7 +503,7 @@ function viewItens() {
         <th>#</th>
         <th><i class="fa-solid fa-align-left"></i> Descrição</th>
         <th><i class="fa-solid fa-link"></i> Aplica-se a (marca/modelo/tipo)</th>
-        <th></th>
+        <th><i class="fa-solid fa-gear"></i> Ações</th>
       </tr></thead>
       <tbody>${rows || emptyRow(4)}</tbody>
     </table>`;
@@ -581,7 +581,7 @@ function viewMarcas() {
         <th><i class="fa-solid fa-car-side"></i> Marca</th>
         <th><i class="fa-solid fa-car"></i> Modelo</th>
         <th><i class="fa-solid fa-tags"></i> Tipos</th>
-        <th></th>
+        <th><i class="fa-solid fa-gear"></i> Ações</th>
       </tr></thead>
       <tbody>${rows || emptyRow(5)}</tbody>
     </table>`;
