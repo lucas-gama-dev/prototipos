@@ -5,15 +5,114 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Prototipo - Mapeamento Cartesiano de Checklist</title>
         <link rel="icon" href="data:," />
+
+        <!-- Script de inicialização do tema - executa IMEDIATAMENTE para evitar flash -->
+        <script>
+          (function () {
+            try {
+              const saved = localStorage.getItem("theme");
+              const theme =
+                saved === "dark" || saved === "light"
+                  ? saved
+                  : window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light";
+
+              const html = document.documentElement;
+
+              if (theme === "dark") {
+                html.setAttribute("data-theme", "dark");
+                html.classList.add("dark", "dark-theme");
+                html.style.cssText =
+                  "background-color: #0f0f0f !important; color: #f8fafc !important;";
+              } else {
+                html.setAttribute("data-theme", "light");
+                html.classList.remove("dark", "dark-theme");
+                html.style.cssText =
+                  "background-color: #e5e7eb !important; color: #1a1a1a !important;";
+              }
+
+              localStorage.setItem("theme", theme);
+            } catch (error) {
+              console.warn("Erro tema:", error);
+            }
+          })();
+        </script>
+
+        <!-- CSS crítico para tema -->
+        <style>
+          html,
+          body {
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-family: "Roboto", sans-serif;
+          }
+          html[data-theme="dark"] {
+            background-color: #0f0f0f !important;
+            color: #f8fafc !important;
+          }
+          html[data-theme="light"] {
+            background-color: #e5e7eb !important;
+            color: #1a1a1a !important;
+          }
+          html[data-theme="dark"] body {
+            background-color: #0f0f0f !important;
+          }
+          html[data-theme="light"] body {
+            background-color: #e5e7eb !important;
+          }
+        </style>
+
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+        <script>
+          if (typeof tailwind !== "undefined") {
+            tailwind.config = {
+              darkMode: "class",
+              theme: { extend: {} },
+            };
+          }
+        </script>
+
+        <!-- Fontes -->
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+          rel="stylesheet"
+        />
+
+        <!-- Font Awesome -->
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
-        <link rel="stylesheet" href="./assets/css/main.css" />
+
+        <!-- CSS global (navbar, header, tema, background) -->
+        <link rel="stylesheet" href="../assets/css/header.css" />
+        <link rel="stylesheet" href="../assets/css/navbar.css" />
+        <link rel="stylesheet" href="../assets/css/TemaButton.css" />
         <link rel="stylesheet" href="../assets/css/background.css" />
+
+        <!-- CSS do protótipo -->
+        <link rel="stylesheet" href="./assets/css/main.css" />
     </head>
     <body>
-        <main class="app">
+      <!-- ═══════════════ LAYOUT GLOBAL ═══════════════ -->
+      <div class="app-layout">
+        <!-- ─── SIDEBAR / NAVBAR (injetada via JS) ─── -->
+        <nav id="main-navbar" class="sidebar" role="navigation" aria-label="Navegação principal"></nav>
+
+        <!-- Overlay mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- ─── COLUNA DE CONTEÚDO ─── -->
+        <div class="app-layout__content-column">
+          <!-- HEADER (injetado via JS) -->
+          <header id="main-header" class="main-header"></header>
+
+          <!-- CONTEÚDO PRINCIPAL DO PROTÓTIPO -->
+          <main class="app-layout__main" style="padding: 0;">
+            <div class="app">
             <header class="topbar">
                 <div class="title-block">
                     <h1><i class="fa-solid fa-map-location-dot"></i> Mapeamento Cartesiano (X/Y)</h1>
@@ -288,8 +387,25 @@
                     </div>
                 </aside>
             </section>
-        </main>
+            </div>
+          </main>
+        </div>
+      </div>
 
-        <script type="module" src="./assets/js/main.js"></script>
+      <!-- Scripts globais -->
+      <script src="../assets/js/auth.js"></script>
+      <script src="../assets/js/global-navbar.js" data-component="global-navbar"></script>
+      <script src="../assets/js/global-header.js"></script>
+      <script>
+        GlobalNavbar.init();
+        GlobalHeader.init({
+          title: 'NUTRAN CHECKLIST',
+          subtitle: 'Mapeamento Cartesiano de Checklist'
+        });
+      </script>
+      <script src="../assets/js/navbar.js"></script>
+
+      <!-- Script do protótipo -->
+      <script type="module" src="./assets/js/main.js"></script>
     </body>
 </html>
