@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Protótipos INOVA — Painel</title>
+
+    <!-- Script de inicialização do tema - executa IMEDIATAMENTE para evitar flash -->
+    <script>
+      (function () {
+        try {
+          const saved = localStorage.getItem("theme");
+          const theme =
+            saved === "dark" || saved === "light"
+              ? saved
+              : window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+
+          const html = document.documentElement;
+
+          if (theme === "dark") {
+            html.setAttribute("data-theme", "dark");
+            html.classList.add("dark", "dark-theme");
+            html.style.cssText =
+              "background-color: #0f0f0f !important; color: #f8fafc !important;";
+          } else {
+            html.setAttribute("data-theme", "light");
+            html.classList.remove("dark", "dark-theme");
+            html.style.cssText =
+              "background-color: #e5e7eb !important; color: #1a1a1a !important;";
+          }
+
+          localStorage.setItem("theme", theme);
+        } catch (error) {
+          console.warn("Erro tema:", error);
+        }
+      })();
+    </script>
+
+    <!-- CSS crítico para tema -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        font-family: "Roboto", sans-serif;
+      }
+      html[data-theme="dark"] {
+        background-color: #0f0f0f !important;
+        color: #f8fafc !important;
+      }
+      html[data-theme="light"] {
+        background-color: #e5e7eb !important;
+        color: #1a1a1a !important;
+      }
+      html[data-theme="dark"] body {
+        background-color: #0f0f0f !important;
+      }
+      html[data-theme="light"] body {
+        background-color: #e5e7eb !important;
+      }
+    </style>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+    <script>
+      if (typeof tailwind !== "undefined") {
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {},
+          },
+        };
+      }
+    </script>
+
+    <!-- Fontes -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- CSS da aplicação -->
+    <link rel="stylesheet" href="assets/css/header.css" />
+    <link rel="stylesheet" href="assets/css/navbar.css" />
+    <link rel="stylesheet" href="assets/css/TemaButton.css" />
+    <link rel="stylesheet" href="assets/css/background.css" />
+  </head>
+  <body>
+    <!-- ═══════════════ LAYOUT ═══════════════ -->
+    <div class="app-layout">
+      <!-- ─── SIDEBAR / NAVBAR ─── -->
+      <nav id="main-navbar" class="sidebar" role="navigation" aria-label="Navegação principal">
+        <!-- Header da Sidebar -->
+        <div class="sidebar__header">
+          <div class="sidebar__title-section">
+            <div class="sidebar__logo-text" aria-label="Logo Protótipos">
+              <i class="fa-solid fa-layer-group sidebar__logo-icon" aria-hidden="true"></i>
+              <span class="sidebar__logo-label">PROTÓTIPOS</span>
+            </div>
+            <button
+              id="nav-toggle"
+              class="nav-toggle"
+              aria-label="Alternar visibilidade do menu lateral"
+              aria-expanded="true"
+              aria-controls="main-navbar"
+            >
+              <img
+                src="assets/icons/retrair-expandir.svg"
+                alt=""
+                class="nav-toggle__icon"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </div>
+
+        <!-- Links de Navegação -->
+        <div class="nav-links">
+          <div class="nav-links-container">
+            <a
+              href="painel.html"
+              class="nav-link"
+              data-page="painel"
+              data-path="painel"
+              data-tooltip="PAINEL"
+              role="menuitem"
+              aria-label="Ir para o Painel"
+            >
+              <i class="fas fa-house nav-link__icon-fa" aria-hidden="true"></i>
+              <span class="nav-link__text">PAINEL</span>
+            </a>
+
+            <a
+              href="NUTRAN-CHECKLIST/"
+              class="nav-link"
+              data-page="nutran-checklist"
+              data-path="NUTRAN-CHECKLIST"
+              data-tooltip="NUTRAN CHECKLIST"
+              role="menuitem"
+              aria-label="Ir para NUTRAN Checklist"
+            >
+              <i class="fas fa-clipboard-check nav-link__icon-fa" aria-hidden="true"></i>
+              <span class="nav-link__text">NUTRAN CHECKLIST</span>
+            </a>
+
+            <a
+              href="ROTA-GPS/"
+              class="nav-link"
+              data-page="rota-gps"
+              data-path="ROTA-GPS"
+              data-tooltip="ROTA GPS"
+              role="menuitem"
+              aria-label="Ir para Rota GPS"
+            >
+              <i class="fas fa-map-location-dot nav-link__icon-fa" aria-hidden="true"></i>
+              <span class="nav-link__text">ROTA GPS</span>
+            </a>
+
+            <a
+              href="#"
+              class="nav-link"
+              id="logoutBtn"
+              data-tooltip="Sair do Sistema"
+              role="menuitem"
+              aria-label="Sair do sistema"
+            >
+              <i class="fas fa-right-from-bracket nav-link__icon-fa" aria-hidden="true"></i>
+              <span class="nav-link__text">SAIR</span>
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Overlay mobile -->
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+      <!-- ─── COLUNA DE CONTEÚDO ─── -->
+      <div class="app-layout__content-column">
+        <!-- HEADER -->
+        <header class="main-header">
+          <div class="header-content">
+            <!-- Mobile hamburger -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Abrir menu">
+              <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Título -->
+            <div class="header-info">
+              <h1 class="header-title">PAINEL</h1>
+              <span class="header-subtitle">Painel de protótipos INOVA — SAMU-DF</span>
+            </div>
+
+            <!-- Ações -->
+            <div class="header-actions">
+              <span class="header-datetime" id="headerDatetime"></span>
+
+              <!-- Tema toggle -->
+              <div class="theme-toggle-wrapper">
+                <input
+                  type="checkbox"
+                  id="themeToggle"
+                  class="theme-toggle"
+                  aria-label="Alternar tema claro/escuro"
+                />
+                <label for="themeToggle" class="theme-toggle-label">
+                  <div class="slider-icons">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" />
+                      <path d="M12 2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      <path d="M12 20V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      <path d="M4 12H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      <path d="M22 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      <path d="M19.7778 4.22266L17.5558 6.25424" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      <path d="M4.22217 4.22266L6.44418 6.25424" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      <path d="M6.44434 17.5557L4.22211 19.7779" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      <path d="M19.7778 19.7773L17.5558 17.5551" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Perfil/Sair -->
+              <a href="#" class="header-profile-button" id="logoutBtnHeader" title="Sair">
+                <span class="header-profile-avatar">
+                  <i class="fas fa-user"></i>
+                </span>
+                <span>Sair</span>
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="app-layout__main">
+          <div class="flex flex-col items-center justify-center h-full text-center" style="min-height: 60vh;">
+            <h2 class="text-4xl font-bold mb-2 hub-welcome-title">
+              Bem-vindo aos Protótipos INOVA
+            </h2>
+
+            <!-- Cards rápidos -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 w-full max-w-lg">
+              <a
+                href="NUTRAN-CHECKLIST/"
+                class="group block p-5 rounded-xl border transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                style="background: rgba(255,255,255,0.7); border-color: rgba(212,212,212,0.5);"
+              >
+                <i class="fas fa-clipboard-check text-2xl mb-3 text-orange-500 group-hover:scale-110 transition-transform"></i>
+                <h3 class="font-semibold text-sm mb-1" style="color: var(--color-text, #374151);">NUTRAN Checklist</h3>
+                <p class="text-xs" style="color: var(--color-text-secondary, #6b7280);">Checklist de viaturas SAMU</p>
+              </a>
+
+              <a
+                href="ROTA-GPS/"
+                class="group block p-5 rounded-xl border transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                style="background: rgba(255,255,255,0.7); border-color: rgba(212,212,212,0.5);"
+              >
+                <i class="fas fa-map-location-dot text-2xl mb-3 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                <h3 class="font-semibold text-sm mb-1" style="color: var(--color-text, #374151);">Rota GPS</h3>
+                <p class="text-xs" style="color: var(--color-text-secondary, #6b7280);">Visualizador de rotas GPS</p>
+              </a>
+            </div>
+
+            <!-- Logo SAMU -->
+            <div class="mt-8">
+              <img src="assets/img/logo_samu_192.png" alt="SAMU 192" class="h-24 sm:h-28 mx-auto opacity-80" />
+            </div>
+
+          </div>
+        </main>
+
+        <!-- RODAPÉ -->
+        <footer class="app-layout__footer py-4 text-center flex flex-col items-center" style="background: rgba(255,255,255,0.85); border-top: 1px solid rgba(212,212,212,0.4);">
+          <span class="text-[8px] sm:text-[10px] font-medium font-roboto" style="color: var(--color-text-secondary, #6b7280);">DESENVOLVIDO POR</span>
+          <a href="https://inova.in" target="_blank" rel="noopener" class="inline-block mt-1">
+            <img src="assets/img/logo_inova.png" alt="Inova Logo" class="h-8 sm:h-10 mt-1" title="Ir para inova.in" />
+          </a>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/navbar.js"></script>
+
+    <!-- Theme toggle (reuse login logic) -->
+    <script>
+      (function () {
+        const toggle = document.getElementById("themeToggle");
+        if (!toggle) return;
+
+        const html = document.documentElement;
+        const theme = localStorage.getItem("theme") || "light";
+        toggle.checked = theme === "dark";
+
+        toggle.addEventListener("change", function () {
+          const isDark = this.checked;
+          const newTheme = isDark ? "dark" : "light";
+
+          if (isDark) {
+            html.setAttribute("data-theme", "dark");
+            html.classList.add("dark", "dark-theme");
+            html.style.cssText =
+              "background-color: #0f0f0f !important; color: #f8fafc !important;";
+          } else {
+            html.setAttribute("data-theme", "light");
+            html.classList.remove("dark", "dark-theme");
+            html.style.cssText =
+              "background-color: #e5e7eb !important; color: #1a1a1a !important;";
+          }
+
+          localStorage.setItem("theme", newTheme);
+        });
+
+        // Logout do header
+        const logoutHeader = document.getElementById("logoutBtnHeader");
+        if (logoutHeader) {
+          logoutHeader.addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.removeItem("isAuthenticated");
+            localStorage.removeItem("userName");
+            window.location.href = "/";
+          });
+        }
+      })();
+    </script>
+
+    <!-- Dark mode card styles -->
+    <style>
+      /* ── Gradiente horizontal animado do título ── */
+      .hub-welcome-title {
+        background: linear-gradient(90deg, #c2410c, #eb5224, #e31837, #eb5224, #c2410c);
+        background-size: 300% 100%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: hub-gradient-slide 6s ease-in-out infinite;
+      }
+
+      @keyframes hub-gradient-slide {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      /* Dark mode */
+      html.dark-theme .hub-welcome-title {
+        background: linear-gradient(90deg, #ea580c, #ef4444, #eb5224, #ea580c);
+        background-size: 300% 100%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: hub-gradient-slide 6s ease-in-out infinite;
+      }
+
+      html.dark-theme .group {
+        background: rgba(23, 23, 23, 0.7) !important;
+        border-color: rgba(64, 64, 64, 0.5) !important;
+      }
+      html.dark-theme .group h3 {
+        color: rgba(243, 244, 246, 0.95) !important;
+      }
+      html.dark-theme .group p {
+        color: rgba(156, 163, 175, 0.8) !important;
+      }
+      html.dark-theme .app-layout__main > div > p {
+        color: rgba(156, 163, 175, 0.8) !important;
+      }
+      html.dark-theme .app-layout__footer {
+        background: rgba(23, 23, 23, 0.85) !important;
+        border-color: rgba(64, 64, 64, 0.4) !important;
+      }
+    </style>
+  </body>
+</html>

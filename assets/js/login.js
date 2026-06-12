@@ -5,7 +5,7 @@
 
 // Verifica se já está logado (redireciona para app)
 if (typeof AuthSystem !== 'undefined' && AuthSystem.isAuthenticated()) {
-  window.location.href = 'hub.html';
+  window.location.href = 'painel.html';
 }
 
 // Inicializa as funções de login quando o documento estiver pronto
@@ -161,7 +161,7 @@ function initLoginForm() {
   loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    // ── DEV MODE: pula autenticação e vai direto para o hub ──
+    // ── DEV MODE: pula autenticação e vai direto para o painel ──
     const DEV_MODE = true;
     if (DEV_MODE) {
       const btn = loginForm.querySelector('button[type="submit"]');
@@ -169,7 +169,7 @@ function initLoginForm() {
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Entrando...';
       }
-      setTimeout(() => { window.location.href = 'hub.html'; }, 500);
+      setTimeout(() => { window.location.href = 'painel.html'; }, 500);
       return;
     }
     // ── FIM DEV MODE ──
@@ -201,7 +201,7 @@ function initLoginForm() {
       await simulateLogin(userInput.value, passwordInput.value);
       
       // Redireciona para a página principal em caso de sucesso
-      window.location.href = 'hub.html';
+      window.location.href = 'painel.html';
       
     } catch (error) {
       // Mostra mensagem de erro
