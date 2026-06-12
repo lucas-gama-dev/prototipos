@@ -10,6 +10,7 @@
   min-height: 60px;
   background: #ffffff;
   color: #1a1a1a;
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
   transition: all 0.2s ease;
   z-index: 10500;
   border-bottom: 1px solid #ede9e3;

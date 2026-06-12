@@ -184,6 +184,7 @@ html.dark-theme {
   flex-shrink: 0; /* Impede que a sidebar seja esmagada */
   background: #ffffff;
   color: var(--color-neutral-900);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
   transition:
     width 0.2s ease,
     background-color 0.2s ease,
@@ -218,6 +219,36 @@ html.dark-theme {
   --navbar-mobile-horizontal-padding: var(--spacing-6, 1.5rem);
   --navbar-profile-option-padding-x: var(--navbar-link-padding-x, 0.875rem);
   --navbar-profile-option-mobile-padding-x: var(--spacing-5, 1.25rem);
+}
+
+/* ==============================================
+   ISOLAMENTO — protege sidebar e header de resets
+   globais feitos por CSS de protótipos (ex: body font-family,
+   button resets, etc.)
+   ============================================== */
+.sidebar button,
+.sidebar a {
+  font-family: inherit;
+}
+
+.sidebar .nav-toggle {
+  min-height: unset;
+  border: none;
+  border-radius: 0;
+  background: none;
+  padding: 1rem;
+}
+
+.sidebar .nav-toggle:hover,
+.sidebar .nav-toggle:focus-visible {
+  background: none;
+  border-color: transparent;
+}
+
+.main-header button,
+.main-header a {
+  font-family: inherit;
+  min-height: unset;
 }
 
 /* Estado retraído */
@@ -1051,9 +1082,9 @@ html.sidebar-collapsed .sidebar .nav-toggle__icon {
   /* Navbar em mobile: estado padrão (sem .sidebar--retracted) — overlay expandido */
   .sidebar {
     transform: none !important;
-    transition:
-      width 0.2s ease !important,
-      transform 0.2s ease !important;
+    transition-property: width, transform;
+    transition-duration: 0.2s, 0.2s;
+    transition-timing-function: ease, ease;
     width: min(86vw, 22rem) !important;
     min-width: min(86vw, 22rem) !important;
     max-width: min(86vw, 22rem) !important;
